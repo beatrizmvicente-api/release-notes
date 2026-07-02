@@ -29,7 +29,7 @@ function initTheme() {
 /* ---------- Boot ---------- */
 async function boot() {
   initTheme();
-  const res = await fetch('/api/releases');
+  const res = await fetch('data/releases.json');
   releases = await res.json();
   renderList(currentFilter());
 
@@ -104,7 +104,7 @@ function tagColor(tag) {
 /* ---------- Abrir release ---------- */
 async function open(slug) {
   current = slug;
-  const res = await fetch('/api/release/' + encodeURIComponent(slug));
+  const res = await fetch('data/' + encodeURIComponent(slug) + '.json');
   if (!res.ok) return;
   const data = await res.json();
   loaded = { interno: data.interno, externo: data.externo };
@@ -167,6 +167,44 @@ function enhance(container) {
         ths[1].textContent.trim().toLowerCase() === 'depois') {
       tb.classList.add('before-after');
     }
+  });
+
+  // Transforma a lista de "mudanças" em accordion (cards expansíveis)
+  container.querySelectorAll('.doc-section').forEach((sec) => {
+    const h = sec.querySelector('h2');
+    if (!h || !/mudan[çc]a/i.test(h.textContent)) return;
+    const ol = sec.querySelector(':scope > ol');
+    if (!ol) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'changes';
+    let n = 0;
+    Array.from(ol.children).forEach((li) => {
+      if (li.nodeName !== 'LI') return;
+      n += 1;
+      const nested = Array.from(li.children).filter((c) => c.nodeName === 'UL' || c.nodeName === 'OL');
+      const clone = li.cloneNode(true);
+      clone.querySelectorAll(':scope > ul, :scope > ol').forEach((x) => x.remove());
+      const num = `<span class="change-num">${n}</span>`;
+      const title = `<span class="change-title">${clone.innerHTML.trim()}</span>`;
+      if (nested.length) {
+        const det = document.createElement('details');
+        det.className = 'change';
+        const sum = document.createElement('summary');
+        sum.innerHTML = num + title;
+        det.appendChild(sum);
+        const body = document.createElement('div');
+        body.className = 'change-body';
+        nested.forEach((x) => body.appendChild(x));
+        det.appendChild(body);
+        wrap.appendChild(det);
+      } else {
+        const flat = document.createElement('div');
+        flat.className = 'change change-flat';
+        flat.innerHTML = num + title;
+        wrap.appendChild(flat);
+      }
+    });
+    if (wrap.children.length) ol.replaceWith(wrap);
   });
 }
 

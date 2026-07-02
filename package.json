@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "novo": "node scripts/novo.js"
+    "novo": "node scripts/novo.js",
+    "build": "node build.js"
   }
 }

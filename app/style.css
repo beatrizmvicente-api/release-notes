@@ -254,6 +254,42 @@ svg { display: block; }
 .markdown tbody tr:first-child td { border-top: 1px solid var(--border); }
 .markdown th + th, .markdown td + td { border-left: 1px solid var(--border); }
 
+/* Mudanças em accordion (cards expansíveis) */
+.changes { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 6px; }
+.change {
+  border: 1px solid var(--border); border-radius: 11px; background: var(--panel);
+  overflow: hidden; transition: border-color .12s, box-shadow .12s;
+}
+.change:hover { border-color: var(--border-strong); }
+.change[open] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-weak); }
+.change > summary, .change-flat {
+  display: flex; align-items: flex-start; gap: 11px;
+  padding: 13px 15px; font-size: 14px; line-height: 1.5; color: var(--text);
+}
+.change > summary { cursor: pointer; list-style: none; }
+.change > summary::-webkit-details-marker { display: none; }
+.change > summary:hover { background: var(--bg); }
+.change[open] > summary { background: var(--bg); border-bottom: 1px solid var(--border); }
+.change-flat { cursor: default; }
+.change-num {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px;
+  background: var(--accent-weak); color: var(--accent-text);
+  font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+}
+.change-title { flex: 1; }
+.change-title strong { color: var(--text-strong); font-weight: 700; }
+.change > summary::after {
+  content: ''; flex-shrink: 0; width: 8px; height: 8px; margin: 6px 2px 0 4px;
+  border-right: 2px solid var(--faint); border-bottom: 2px solid var(--faint);
+  transform: rotate(45deg); transition: transform .18s;
+}
+.change[open] > summary::after { transform: rotate(-135deg); }
+.change-body { padding: 12px 16px 14px 48px; }
+.change-body ul { margin: 0; padding-left: 18px; }
+.change-body li { margin: 6px 0; }
+.change-body li::marker { color: var(--faint); }
+
 /* Antes → Depois com cor */
 table.before-after thead th:first-child { color: var(--before-text); }
 table.before-after thead th:last-child { color: var(--after-text); }

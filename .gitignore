@@ -7,3 +7,7 @@ Thumbs.db
 # Node (caso um dia adicione dependências)
 node_modules/
 npm-debug.log*
+
+# Build estático (gerado pela Vercel / npm run build)
+public/
+.vercel/
