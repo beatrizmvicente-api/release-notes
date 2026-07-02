@@ -1,21 +1,22 @@
 ## Em uma frase
-_(O que mudou, direto. Ex: "Agora dá pra transferir chamadas entre ramais sem derrubar a ligação.")_
+_(O que mudou, direto e em uma linha. Ex: "Agora dá pra transferir chamadas entre ramais sem derrubar a ligação.")_
 
 ## Antes → Depois
 | Antes | Depois |
 |-------|--------|
-| _(como era)_ | _(como ficou)_ |
+| _(como era — curto)_ | _(como ficou — curto)_ |
 
 ## Por que importa
-_(O impacto real pro cliente e pro negócio. 1–3 linhas.)_
+_(A dor de negócio que isso resolve / quanto vale. Lidere pelo impacto financeiro ou operacional, não pela mecânica. Se ajudar, quebre em 2 blocos: o problema, depois o que a mudança fecha.)_
+
+## As mudanças
+_(Só se a release tiver várias partes. Uma por item; casos/regras viram sub-itens curtos, não parágrafo corrido.)_
+1. **Título da mudança** — o que faz, em uma linha.
+   - _(regra ou caso, curto)_
 
 ## O que muda no dia a dia
-- **Pro cliente:** _(o que ele vai perceber/poder fazer)_
-- **Pro time:** _(o que muda no seu trabalho, se muda)_
+- **Pro cliente:** _(o que ele passa a perceber/poder fazer)_
+- **Pro time:** _(o que muda no fluxo; se houver risco de bypass, diga o que parar de fazer)_
 
-## O que falar (e o que não falar)
-- **Pode dizer:** _(mensagem oficial)_
-- **Cuidado com:** _(limitações, casos que ainda não cobre)_
-
-## Detalhe que só importa se perguntarem
-_(Requisitos, planos que têm acesso, configuração necessária, etc.)_
+## Detalhes importantes
+- _(Requisitos, pré-condições, planos com acesso, passos de configuração — só o que muda a decisão de quem lê.)_

@@ -1,33 +1,66 @@
 'use strict';
 
+/* Estado */
 let releases = [];
 let current = null;
-let activeTab = 'interno';
+let audience = 'interno';
 let loaded = { interno: '', externo: '' };
 
-const $ = (sel) => document.querySelector(sel);
+const $ = (s) => document.querySelector(s);
+const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
+/* Escapa HTML (NÃO usar o escape() nativo do JS, que faz URL-encoding) */
+function escape(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* ---------- Tema ---------- */
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('rn-theme', t);
+  $('#themeToggle').textContent = t === 'dark' ? '☀' : '◐';
+}
+function initTheme() {
+  const saved = localStorage.getItem('rn-theme');
+  const t = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(t);
+}
+
+/* ---------- Boot ---------- */
 async function boot() {
+  initTheme();
   const res = await fetch('/api/releases');
   releases = await res.json();
-  renderList(releases);
+  renderList(currentFilter());
 
-  $('#search').addEventListener('input', (e) => {
-    const q = e.target.value.trim().toLowerCase();
-    const filtered = !q ? releases : releases.filter((r) => {
-      const hay = [r.feature, r.versao, r.data, ...(r.tags || [])].join(' ').toLowerCase();
-      return hay.includes(q);
-    });
-    renderList(filtered);
+  $('#search').addEventListener('input', () => renderList(currentFilter()));
+
+  document.querySelectorAll('.seg').forEach((btn) => {
+    btn.addEventListener('click', () => setAudience(btn.dataset.tab));
   });
 
-  document.querySelectorAll('.tab').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      activeTab = btn.dataset.tab;
-      document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b === btn));
-      renderDoc();
-    });
+  $('#copyBtn').addEventListener('click', copyCurrent);
+  $('#themeToggle').addEventListener('click', () => {
+    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   });
+  $('#menuToggle').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
+
+  window.addEventListener('keydown', onKey);
+  window.addEventListener('hashchange', routeFromHash);
+  routeFromHash();
+}
+
+/* ---------- Lista (agrupada por mês) ---------- */
+function currentFilter() {
+  const q = $('#search').value.trim().toLowerCase();
+  if (!q) return releases;
+  return releases.filter((r) => [r.feature, r.versao, r.data, ...(r.tags || [])].join(' ').toLowerCase().includes(q));
+}
+
+function monthLabel(sortable) {
+  const m = /^(\d{4})-(\d{2})/.exec(sortable || '');
+  if (!m) return 'Sem data';
+  return `${MESES[parseInt(m[2], 10) - 1]} ${m[1]}`;
 }
 
 function renderList(items) {
@@ -35,22 +68,40 @@ function renderList(items) {
   $('#count').textContent = `${items.length} release${items.length === 1 ? '' : 's'}`;
   list.innerHTML = '';
   if (!items.length) {
-    list.innerHTML = '<div class="count" style="padding:12px 2px">Nenhuma release ainda. Crie a primeira em releases/.</div>';
+    list.innerHTML = '<div class="count" style="padding:14px 6px;text-transform:none;letter-spacing:0">Nada encontrado. Ajuste a busca ou crie uma release em <code>releases/</code>.</div>';
     return;
   }
+  let group = null;
   for (const r of items) {
+    const g = monthLabel(r.dataSortable);
+    if (g !== group) {
+      group = g;
+      const h = document.createElement('div');
+      h.className = 'group-label';
+      h.textContent = g;
+      list.appendChild(h);
+    }
     const el = document.createElement('button');
     el.className = 'item' + (current === r.slug ? ' active' : '');
-    const tags = (r.tags || []).map((t) => `<span class="tag">${escape(t)}</span>`).join(' ');
+    const dots = (r.tags || []).map((t) => `<span class="tag-dot" style="background:${tagColor(t)}" title="${escape(t)}"></span>`).join('');
     el.innerHTML =
       `<div class="title">${escape(r.feature)}</div>` +
-      `<div class="sub"><span>${escape(r.data || 's/ data')}</span>` +
-      (r.versao ? `<span>${escape(r.versao)}</span>` : '') + tags + `</div>`;
-    el.addEventListener('click', () => open(r.slug));
+      `<div class="sub"><span class="date">${escape(r.data || 's/ data')}</span>` +
+      (r.versao ? `<span class="ver">${escape(r.versao)}</span>` : '') +
+      (dots ? `<span class="tag-dots">${dots}</span>` : '') + `</div>`;
+    el.addEventListener('click', () => { location.hash = r.slug; });
     list.appendChild(el);
   }
 }
 
+/* Cor estável por tag (hue derivado do texto) */
+function tagColor(tag) {
+  let h = 0;
+  for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) % 360;
+  return `hsl(${h} 65% 55%)`;
+}
+
+/* ---------- Abrir release ---------- */
 async function open(slug) {
   current = slug;
   const res = await fetch('/api/release/' + encodeURIComponent(slug));
@@ -62,30 +113,128 @@ async function open(slug) {
   $('#content').hidden = false;
 
   const m = data.meta;
+  const tags = (m.tags || []).map((t) =>
+    `<span class="chip"><span class="tag-dot" style="background:${tagColor(t)}"></span>${escape(t)}</span>`).join('');
   $('#meta-bar').innerHTML =
     `<div class="feature">${escape(m.feature || slug)}</div>` +
-    `<div class="info"><span>${escape(m.data || '')}</span>` +
-    (m.versao ? `<span>Versão ${escape(m.versao)}</span>` : '') +
-    ((m.tags || []).length ? `<span>${(m.tags).map(escape).join(', ')}</span>` : '') +
-    `</div>`;
+    `<div class="info">` +
+    (m.data ? `<span class="chip"><svg class="chip-ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>${escape(m.data)}</span>` : '') +
+    (m.versao ? `<span class="chip ver">${escape(m.versao)}</span>` : '') +
+    tags + `</div>`;
 
   renderDoc();
   renderList(currentFilter());
+  $('#main').scrollTop = 0;
+  $('#sidebar').classList.remove('open');
 }
 
-function currentFilter() {
-  const q = $('#search').value.trim().toLowerCase();
-  if (!q) return releases;
-  return releases.filter((r) => [r.feature, r.versao, r.data, ...(r.tags || [])].join(' ').toLowerCase().includes(q));
+function setAudience(a) {
+  audience = a;
+  document.querySelectorAll('.seg').forEach((b) => b.classList.toggle('active', b.dataset.tab === a));
+  renderDoc();
+  if (current) history.replaceState(null, '', `#${current}/${a}`);
 }
 
 function renderDoc() {
-  const md = loaded[activeTab] || '_(sem conteúdo para esta versão)_';
-  $('#doc').innerHTML = marked.parse(md);
+  const md = loaded[audience] || '_(sem conteúdo para esta versão)_';
+  const doc = $('#doc');
+  doc.innerHTML = marked.parse(md);
+  enhance(doc);
 }
 
-function escape(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Realça "Em uma frase" e tabelas Antes→Depois */
+function enhance(container) {
+  const nodes = Array.from(container.childNodes);
+  container.innerHTML = '';
+  let section = null;
+  for (const node of nodes) {
+    if (node.nodeName === 'H2') {
+      section = document.createElement('section');
+      section.className = 'doc-section';
+      if (node.textContent.trim().toLowerCase() === 'em uma frase') section.classList.add('lead-section');
+      container.appendChild(section);
+      section.appendChild(node);
+    } else if (section) {
+      section.appendChild(node);
+    } else {
+      container.appendChild(node);
+    }
+  }
+  container.querySelectorAll('table').forEach((tb) => {
+    const ths = tb.querySelectorAll('thead th');
+    if (ths.length === 2 &&
+        ths[0].textContent.trim().toLowerCase() === 'antes' &&
+        ths[1].textContent.trim().toLowerCase() === 'depois') {
+      tb.classList.add('before-after');
+    }
+  });
+}
+
+/* ---------- Copiar (rich + texto) ---------- */
+async function copyCurrent() {
+  const md = loaded[audience] || '';
+  if (!md) return;
+  const html = `<div>${marked.parse(md)}</div>`;
+  const btn = $('#copyBtn');
+  try {
+    if (navigator.clipboard && window.ClipboardItem) {
+      await navigator.clipboard.write([new ClipboardItem({
+        'text/html': new Blob([html], { type: 'text/html' }),
+        'text/plain': new Blob([md], { type: 'text/plain' }),
+      })]);
+    } else {
+      await navigator.clipboard.writeText(md);
+    }
+    btn.classList.add('done');
+    btn.querySelector('.copy-label').textContent = 'Copiado';
+    toast(`Versão ${audience} copiada — cole no e-mail ou Slack`);
+    setTimeout(() => { btn.classList.remove('done'); btn.querySelector('.copy-label').textContent = 'Copiar'; }, 1600);
+  } catch (e) {
+    toast('Não foi possível copiar');
+  }
+}
+
+let toastTimer = null;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ---------- Roteamento por hash (#slug ou #slug/externo) ---------- */
+function routeFromHash() {
+  const raw = decodeURIComponent(location.hash.replace(/^#/, ''));
+  if (!raw) return;
+  const [slug, aud] = raw.split('/');
+  if (aud === 'interno' || aud === 'externo') audience = aud;
+  document.querySelectorAll('.seg').forEach((b) => b.classList.toggle('active', b.dataset.tab === audience));
+  if (slug && slug !== current) open(slug);
+  else if (slug) renderDoc();
+}
+
+/* ---------- Teclado ---------- */
+function onKey(e) {
+  const typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
+  if (e.key === '/' && !typing) { e.preventDefault(); $('#search').focus(); return; }
+  if (e.key === 'Escape' && typing) { document.activeElement.blur(); return; }
+  if (typing) return;
+
+  const items = currentFilter();
+  if (!items.length) return;
+  const idx = items.findIndex((r) => r.slug === current);
+  if (e.key === 'j' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    location.hash = items[Math.min(idx + 1, items.length - 1)].slug;
+  } else if (e.key === 'k' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    location.hash = items[Math.max(idx - 1, 0)].slug;
+  } else if (e.key === 'i' && current) {
+    setAudience('interno');
+  } else if (e.key === 'e' && current) {
+    setAudience('externo');
+  }
 }
 
 boot();
