@@ -1,0 +1,9 @@
+# SO / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node (caso um dia adicione dependências)
+node_modules/
+npm-debug.log*

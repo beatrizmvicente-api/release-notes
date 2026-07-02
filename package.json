@@ -1,0 +1,10 @@
+{
+  "name": "release-notes-api4com",
+  "version": "1.0.0",
+  "description": "Repositório de comunicação das releases do produto API4COM",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "novo": "node scripts/novo.js"
+  }
+}
