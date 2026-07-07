@@ -11,3 +11,5 @@ npm-debug.log*
 # Build estático (gerado pela Vercel / npm run build)
 public/
 .vercel/
+
+.vercel

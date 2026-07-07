@@ -5,8 +5,42 @@ let releases = [];
 let current = null;
 let audience = 'interno';
 let loaded = { interno: '', externo: '' };
+let readState = loadRead();
 
 const $ = (s) => document.querySelector(s);
+
+/* ---------- Estado de leitura (por usuário, via localStorage) ---------- */
+function loadRead() {
+  try { return JSON.parse(localStorage.getItem('rn-read') || '{}') || {}; }
+  catch (e) { return {}; }
+}
+function saveRead() { localStorage.setItem('rn-read', JSON.stringify(readState)); }
+function isRead(slug) { return !!readState[slug]; }
+function setRead(slug, val) {
+  if (val) readState[slug] = Date.now();
+  else delete readState[slug];
+  saveRead();
+  refreshReadUI();
+}
+function unreadCount() { return releases.filter((r) => !isRead(r.slug)).length; }
+
+/* Atualiza pill do topo, lista lateral, home e botão de leitura */
+function refreshReadUI() {
+  const n = unreadCount();
+  const pill = $('#unreadPill');
+  if (n > 0) { pill.hidden = false; pill.textContent = `${n} não lida${n === 1 ? '' : 's'}`; }
+  else { pill.hidden = true; }
+  renderList(currentFilter());
+  if (!$('#home').hidden) renderHome();
+  updateReadBtn();
+}
+function updateReadBtn() {
+  const btn = $('#readBtn');
+  if (!btn || !current) return;
+  const read = isRead(current);
+  btn.classList.toggle('is-read', read);
+  btn.querySelector('.read-label').textContent = read ? 'Lido' : 'Marcar como lido';
+}
 const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
 /* Escapa HTML (NÃO usar o escape() nativo do JS, que faz URL-encoding) */
@@ -45,8 +79,27 @@ async function boot() {
   });
   $('#menuToggle').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
 
+  $('#readBtn').addEventListener('click', () => {
+    if (!current) return;
+    const nowRead = !isRead(current);
+    setRead(current, nowRead);
+    toast(nowRead ? 'Release marcada como lida' : 'Marcada como não lida');
+  });
+  $('#markAllBtn').addEventListener('click', () => {
+    releases.forEach((r) => { readState[r.slug] = Date.now(); });
+    saveRead();
+    refreshReadUI();
+    toast('Todas as releases marcadas como lidas');
+  });
+  $('#homeBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    if (location.hash) location.hash = '';
+    else showHome();
+  });
+
   window.addEventListener('keydown', onKey);
   window.addEventListener('hashchange', routeFromHash);
+  refreshReadUI();
   routeFromHash();
 }
 
@@ -82,14 +135,20 @@ function renderList(items) {
       list.appendChild(h);
     }
     const el = document.createElement('button');
-    el.className = 'item' + (current === r.slug ? ' active' : '');
+    const unread = !isRead(r.slug);
+    el.className = 'item' + (current === r.slug ? ' active' : '') + (unread ? ' unread' : '');
     const dots = (r.tags || []).map((t) => `<span class="tag-dot" style="background:${tagColor(t)}" title="${escape(t)}"></span>`).join('');
     el.innerHTML =
-      `<div class="title">${escape(r.feature)}</div>` +
+      `<span class="item-mark${unread ? '' : ' is-read'}" title="${unread ? 'Marcar como lido' : 'Marcar como não lido'}"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>` +
+      `<div class="title">${unread ? '<span class="unread-dot" title="Não lido"></span>' : ''}${escape(r.feature)}</div>` +
       `<div class="sub"><span class="date">${escape(r.data || 's/ data')}</span>` +
       (r.versao ? `<span class="ver">${escape(r.versao)}</span>` : '') +
       (dots ? `<span class="tag-dots">${dots}</span>` : '') + `</div>`;
     el.addEventListener('click', () => { location.hash = r.slug; });
+    el.querySelector('.item-mark').addEventListener('click', (e) => {
+      e.stopPropagation();
+      setRead(r.slug, !isRead(r.slug));
+    });
     list.appendChild(el);
   }
 }
@@ -109,8 +168,9 @@ async function open(slug) {
   const data = await res.json();
   loaded = { interno: data.interno, externo: data.externo };
 
-  $('#empty').hidden = true;
+  $('#home').hidden = true;
   $('#content').hidden = false;
+  updateReadBtn();
 
   const m = data.meta;
   const tags = (m.tags || []).map((t) =>
@@ -126,6 +186,43 @@ async function open(slug) {
   renderList(currentFilter());
   $('#main').scrollTop = 0;
   $('#sidebar').classList.remove('open');
+}
+
+/* ---------- Página inicial (home) ---------- */
+function showHome() {
+  current = null;
+  $('#content').hidden = true;
+  $('#home').hidden = false;
+  renderHome();
+  renderList(currentFilter());
+  $('#main').scrollTop = 0;
+  $('#sidebar').classList.remove('open');
+}
+
+function renderHome() {
+  const grid = $('#homeGrid');
+  const n = unreadCount();
+  $('#homeSub').textContent = n > 0
+    ? `Você tem ${n} release${n === 1 ? '' : 's'} não lida${n === 1 ? '' : 's'}. Abra, leia e marque como lido.`
+    : 'Tudo em dia — você já leu todas as releases.';
+  $('#markAllBtn').hidden = n === 0;
+  grid.innerHTML = '';
+  for (const r of releases) {
+    const unread = !isRead(r.slug);
+    const card = document.createElement('button');
+    card.className = 'home-card' + (unread ? ' unread' : '');
+    const dots = (r.tags || []).map((t) => `<span class="tag-dot" style="background:${tagColor(t)}" title="${escape(t)}"></span>`).join('');
+    card.innerHTML =
+      `<div class="home-card-top">` +
+        `<span class="home-badge ${unread ? 'is-unread' : 'is-read'}">${unread ? 'Não lido' : 'Lido'}</span>` +
+        (r.versao ? `<span class="ver">${escape(r.versao)}</span>` : '') +
+      `</div>` +
+      `<div class="home-card-title">${escape(r.feature)}</div>` +
+      `<div class="home-card-sub"><span class="date">${escape(r.data || 's/ data')}</span>` +
+        (dots ? `<span class="tag-dots">${dots}</span>` : '') + `</div>`;
+    card.addEventListener('click', () => { location.hash = r.slug; });
+    grid.appendChild(card);
+  }
 }
 
 function setAudience(a) {
@@ -244,7 +341,7 @@ function toast(msg) {
 /* ---------- Roteamento por hash (#slug ou #slug/externo) ---------- */
 function routeFromHash() {
   const raw = decodeURIComponent(location.hash.replace(/^#/, ''));
-  if (!raw) return;
+  if (!raw) { showHome(); return; }
   const [slug, aud] = raw.split('/');
   if (aud === 'interno' || aud === 'externo') audience = aud;
   document.querySelectorAll('.seg').forEach((b) => b.classList.toggle('active', b.dataset.tab === audience));

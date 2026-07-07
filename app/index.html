@@ -16,6 +16,10 @@
       </div>
     </div>
     <div class="topbar-actions">
+      <span id="unreadPill" class="unread-pill" hidden></span>
+      <a id="homeBtn" class="icon-btn" title="Início" aria-label="Página inicial" href="#">
+        <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      </a>
       <button id="menuToggle" class="icon-btn" title="Menu" aria-label="Abrir lista">
         <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
@@ -38,11 +42,14 @@
 
     <main id="main">
       <div id="viewer">
-        <div id="empty" class="empty">
-          <div class="empty-mark"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
-          <p class="empty-title">Selecione uma release</p>
-          <p class="empty-sub">Escolha uma release na lista à esquerda para ver a comunicação interna e externa.</p>
-        </div>
+        <section id="home" class="home" hidden>
+          <div class="home-head">
+            <h1 class="home-title">Novidades do produto</h1>
+            <p class="home-sub" id="homeSub"></p>
+            <button id="markAllBtn" class="ghost-btn" hidden>Marcar todas como lidas</button>
+          </div>
+          <div id="homeGrid" class="home-grid"></div>
+        </section>
 
         <article id="content" hidden>
           <div id="meta-bar"></div>
@@ -52,9 +59,14 @@
               <button class="seg active" data-tab="interno" role="tab">Interno</button>
               <button class="seg" data-tab="externo" role="tab">Externo</button>
             </div>
-            <button id="copyBtn" class="copy-btn" title="Copiar para colar em e-mail/Slack">
-              <span class="copy-ico"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></span> <span class="copy-label">Copiar</span>
-            </button>
+            <div class="toolbar-right">
+              <button id="readBtn" class="read-btn" title="Marcar esta release como lida">
+                <span class="read-ico"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span> <span class="read-label">Marcar como lido</span>
+              </button>
+              <button id="copyBtn" class="copy-btn" title="Copiar para colar em e-mail/Slack">
+                <span class="copy-ico"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></span> <span class="copy-label">Copiar</span>
+              </button>
+            </div>
           </div>
 
           <div id="doc" class="markdown"></div>
