@@ -5,42 +5,9 @@ let releases = [];
 let current = null;
 let audience = 'interno';
 let loaded = { interno: '', externo: '' };
-let readState = loadRead();
 
 const $ = (s) => document.querySelector(s);
 
-/* ---------- Estado de leitura (por usuário, via localStorage) ---------- */
-function loadRead() {
-  try { return JSON.parse(localStorage.getItem('rn-read') || '{}') || {}; }
-  catch (e) { return {}; }
-}
-function saveRead() { localStorage.setItem('rn-read', JSON.stringify(readState)); }
-function isRead(slug) { return !!readState[slug]; }
-function setRead(slug, val) {
-  if (val) readState[slug] = Date.now();
-  else delete readState[slug];
-  saveRead();
-  refreshReadUI();
-}
-function unreadCount() { return releases.filter((r) => !isRead(r.slug)).length; }
-
-/* Atualiza pill do topo, lista lateral, home e botão de leitura */
-function refreshReadUI() {
-  const n = unreadCount();
-  const pill = $('#unreadPill');
-  if (n > 0) { pill.hidden = false; pill.textContent = `${n} não lida${n === 1 ? '' : 's'}`; }
-  else { pill.hidden = true; }
-  renderList(currentFilter());
-  if (!$('#home').hidden) renderHome();
-  updateReadBtn();
-}
-function updateReadBtn() {
-  const btn = $('#readBtn');
-  if (!btn || !current) return;
-  const read = isRead(current);
-  btn.classList.toggle('is-read', read);
-  btn.querySelector('.read-label').textContent = read ? 'Lido' : 'Marcar como lido';
-}
 const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
 /* Escapa HTML (NÃO usar o escape() nativo do JS, que faz URL-encoding) */
@@ -79,18 +46,6 @@ async function boot() {
   });
   $('#menuToggle').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
 
-  $('#readBtn').addEventListener('click', () => {
-    if (!current) return;
-    const nowRead = !isRead(current);
-    setRead(current, nowRead);
-    toast(nowRead ? 'Release marcada como lida' : 'Marcada como não lida');
-  });
-  $('#markAllBtn').addEventListener('click', () => {
-    releases.forEach((r) => { readState[r.slug] = Date.now(); });
-    saveRead();
-    refreshReadUI();
-    toast('Todas as releases marcadas como lidas');
-  });
   $('#homeBtn').addEventListener('click', (e) => {
     e.preventDefault();
     if (location.hash) location.hash = '';
@@ -99,7 +54,6 @@ async function boot() {
 
   window.addEventListener('keydown', onKey);
   window.addEventListener('hashchange', routeFromHash);
-  refreshReadUI();
   routeFromHash();
 }
 
@@ -135,20 +89,14 @@ function renderList(items) {
       list.appendChild(h);
     }
     const el = document.createElement('button');
-    const unread = !isRead(r.slug);
-    el.className = 'item' + (current === r.slug ? ' active' : '') + (unread ? ' unread' : '');
+    el.className = 'item' + (current === r.slug ? ' active' : '');
     const dots = (r.tags || []).map((t) => `<span class="tag-dot" style="background:${tagColor(t)}" title="${escape(t)}"></span>`).join('');
     el.innerHTML =
-      `<span class="item-mark${unread ? '' : ' is-read'}" title="${unread ? 'Marcar como lido' : 'Marcar como não lido'}"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>` +
-      `<div class="title">${unread ? '<span class="unread-dot" title="Não lido"></span>' : ''}${escape(r.feature)}</div>` +
+      `<div class="title">${escape(r.feature)}</div>` +
       `<div class="sub"><span class="date">${escape(r.data || 's/ data')}</span>` +
       (r.versao ? `<span class="ver">${escape(r.versao)}</span>` : '') +
       (dots ? `<span class="tag-dots">${dots}</span>` : '') + `</div>`;
     el.addEventListener('click', () => { location.hash = r.slug; });
-    el.querySelector('.item-mark').addEventListener('click', (e) => {
-      e.stopPropagation();
-      setRead(r.slug, !isRead(r.slug));
-    });
     list.appendChild(el);
   }
 }
@@ -170,7 +118,6 @@ async function open(slug) {
 
   $('#home').hidden = true;
   $('#content').hidden = false;
-  updateReadBtn();
 
   const m = data.meta;
   const tags = (m.tags || []).map((t) =>
@@ -201,22 +148,13 @@ function showHome() {
 
 function renderHome() {
   const grid = $('#homeGrid');
-  const n = unreadCount();
-  $('#homeSub').textContent = n > 0
-    ? `Você tem ${n} release${n === 1 ? '' : 's'} não lida${n === 1 ? '' : 's'}. Abra, leia e marque como lido.`
-    : 'Tudo em dia — você já leu todas as releases.';
-  $('#markAllBtn').hidden = n === 0;
   grid.innerHTML = '';
   for (const r of releases) {
-    const unread = !isRead(r.slug);
     const card = document.createElement('button');
-    card.className = 'home-card' + (unread ? ' unread' : '');
+    card.className = 'home-card';
     const dots = (r.tags || []).map((t) => `<span class="tag-dot" style="background:${tagColor(t)}" title="${escape(t)}"></span>`).join('');
     card.innerHTML =
-      `<div class="home-card-top">` +
-        `<span class="home-badge ${unread ? 'is-unread' : 'is-read'}">${unread ? 'Não lido' : 'Lido'}</span>` +
-        (r.versao ? `<span class="ver">${escape(r.versao)}</span>` : '') +
-      `</div>` +
+      (r.versao ? `<div class="home-card-top"><span class="ver">${escape(r.versao)}</span></div>` : '') +
       `<div class="home-card-title">${escape(r.feature)}</div>` +
       `<div class="home-card-sub"><span class="date">${escape(r.data || 's/ data')}</span>` +
         (dots ? `<span class="tag-dots">${dots}</span>` : '') + `</div>`;
@@ -303,6 +241,76 @@ function enhance(container) {
     });
     if (wrap.children.length) ol.replaceWith(wrap);
   });
+
+  // ---- Camadas de leitura ----
+  // Camada 2: "O que muda no dia a dia" ganha filtro por papel.
+  // Camada 3: aprofundamento (Por que importa / As mudanças / Detalhes) colapsa.
+  Array.from(container.querySelectorAll('.doc-section')).forEach((sec) => {
+    const h = sec.querySelector(':scope > h2');
+    if (!h) return;
+    const t = h.textContent.trim().toLowerCase();
+    if (/dia a dia/.test(t)) buildRoleFilter(sec);
+    else if (/por que importa/.test(t) || /mudan[çc]a/.test(t) || /detalhe/.test(t)) collapseSection(sec, h);
+  });
+}
+
+/* Camada 3 — colapsa a seção inteira num <details> (fechado por padrão) */
+function collapseSection(sec, h) {
+  const det = document.createElement('details');
+  det.className = 'doc-collapse';
+  const sum = document.createElement('summary');
+  sum.innerHTML = `<span class="collapse-title">${h.innerHTML}</span>`;
+  det.appendChild(sum);
+  const body = document.createElement('div');
+  body.className = 'collapse-body';
+  Array.from(sec.childNodes).forEach((n) => { if (n !== h) body.appendChild(n); });
+  det.appendChild(body);
+  sec.innerHTML = '';
+  sec.appendChild(det);
+  sec.classList.add('is-collapsed');
+}
+
+/* Camada 2 — extrai o papel de "**Pro X:** ..." em cada item */
+function roleLabel(li) {
+  const strong = li.querySelector('strong');
+  const raw = strong ? strong.textContent : (li.textContent.split(/[:：]/)[0] || '');
+  return raw.replace(/^\s*pro\s+/i, '').replace(/\([^)]*\)/g, '').replace(/[:：].*$/, '').trim();
+}
+function buildRoleFilter(sec) {
+  const ul = sec.querySelector(':scope > ul');
+  if (!ul) return;
+  const items = Array.from(ul.children).filter((li) => li.nodeName === 'LI');
+  if (items.length < 2) return;
+  const roles = [];
+  items.forEach((li) => {
+    const r = roleLabel(li);
+    li.dataset.role = r;
+    if (r && !roles.includes(r)) roles.push(r);
+  });
+  if (roles.length < 2) return; // sem papéis distintos, não vale filtro
+  const bar = document.createElement('div');
+  bar.className = 'role-filter';
+  const mk = (label, value) => {
+    const b = document.createElement('button');
+    b.className = 'role-chip';
+    b.textContent = label;
+    b.dataset.role = value;
+    b.addEventListener('click', () => selectRole(sec, value, false));
+    return b;
+  };
+  bar.appendChild(mk('Todos', '*'));
+  roles.forEach((r) => bar.appendChild(mk(r, r)));
+  sec.insertBefore(bar, ul);
+  const saved = localStorage.getItem('rn-role') || '*';
+  selectRole(sec, roles.includes(saved) ? saved : '*', true);
+}
+function selectRole(sec, value, silent) {
+  sec.querySelectorAll(':scope > .role-filter .role-chip').forEach((c) =>
+    c.classList.toggle('active', c.dataset.role === value));
+  sec.querySelectorAll(':scope > ul > li').forEach((li) => {
+    li.hidden = !(value === '*' || li.dataset.role === value);
+  });
+  if (!silent) localStorage.setItem('rn-role', value);
 }
 
 /* ---------- Copiar (rich + texto) ---------- */
