@@ -12,11 +12,11 @@ Algumas integrações de CRM não são desenvolvidas pela API4COM: são as **int
 
 Com o CRM gravado no CDR, passamos a enxergar de qual CRM cada chamada sai — base pra medir a adoção das integrações (inclusive de parceiros), investigar falhas de sincronização e alimentar relatórios.
 
+## Detalhes importantes
+- Vale pra contas com integração externa (o que a documentação técnica chama de Classe B).
+- Melhoria de bastidor: sem mudança de tela, é base pra relatórios e diagnóstico.
+
 ## O que muda no dia a dia
 - **Pro Suporte:** ao investigar uma falha de integração, o CRM vinculado já aparece no CDR da chamada — sem consultar outra tela.
 - **Pro Comercial/Produto:** dados pra saber quais CRMs (nossos e de parceiros) realmente geram ligações.
 - **Pro cliente:** nada muda na tela — é melhoria de bastidor.
-
-## Detalhes importantes
-- Vale pra contas com integração externa (o que a documentação técnica chama de Classe B).
-- Melhoria de bastidor: sem mudança de tela, é base pra relatórios e diagnóstico.

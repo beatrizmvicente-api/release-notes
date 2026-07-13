@@ -39,11 +39,11 @@ Estas mudanças fecham os dois vazamentos: a cobrança vira **automática e prop
    - Sem minutos, a ligação é bloqueada e aparece o aviso de upgrade — nas duas versões (**azul** e **branca**). O Suporte pode revogar quando precisar.
    - O aviso só aparece com a **extensão atualizada** (v3 4.34.0 / v5 5.3.0) — ela se atualiza sozinha pela loja do Chrome, mas pode demorar algumas horas.
 
-## O que muda no dia a dia
-- **Pro cliente (contas Plano):** adiciona usuário sozinho e enxerga consumo, plano e valor. Sem minutos, é a **próxima ligação** que é bloqueada — **chamadas em andamento não caem** (a checagem é feita ao iniciar cada ligação).
-- **Pro time:** menos pedido manual de "adiciona usuário / troca plano". **Mande o cliente pro self-service** — é mais rápido e é onde a cobrança sai certa. Regras de upgrade, desativação e bloqueio são fixas: sem negociar caso a caso.
-
 ## Detalhes importantes
 - Vale só para contas **Plano** (não Recarga).
 - Depois de configurar ou mudar algo, **saia e entre de novo** no portal para aplicar.
 - Upgrade muda só após o pagamento; desativação e mudanças de "próximo ciclo" não entram na fatura atual.
+
+## O que muda no dia a dia
+- **Pro cliente (contas Plano):** adiciona usuário sozinho e enxerga consumo, plano e valor. Sem minutos, é a **próxima ligação** que é bloqueada — **chamadas em andamento não caem** (a checagem é feita ao iniciar cada ligação).
+- **Pro time:** menos pedido manual de "adiciona usuário / troca plano". **Mande o cliente pro self-service** — é mais rápido e é onde a cobrança sai certa. Regras de upgrade, desativação e bloqueio são fixas: sem negociar caso a caso.

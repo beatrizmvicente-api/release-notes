@@ -20,12 +20,12 @@ A personificação fecha isso: o atendente entra na conta direto pelo portal, v�
 - Gerou um código novo? A personificação anterior é revogada — nunca há duas sessões ativas.
 - Durante a sessão, barra/aviso permanente no portal, com botão de encerrar (com confirmação).
 
-## O que muda no dia a dia
-- **Pro Suporte:** peça o código ao cliente, valide na tela de suporte e entre. Toda ação de escrita fica auditada — **não faça nada fora do escopo do atendimento**.
-- **Pro CS:** em caso difícil de descrever por texto, oriente o cliente a gerar o código na tela de Suporte e passar ao atendente.
-- **Pro Comercial:** use como diferencial — suporte mais ágil e seguro, sem pedir senha do cliente.
-
 ## Detalhes importantes
 - **Rollout controlado (interno):** o cliente já vê o menu e consegue gerar o código normalmente — o controle (flag `account-impersonation`) é de **qual pessoa do time interno** pode usar o recurso pra entrar na conta do cliente. Ainda não está liberado pra todo o time.
 - A sessão expira sozinha em 3h; o cliente também encerra a qualquer momento.
 - Já saiu com os ajustes finos (TEL-2010): aviso de sessão mais visível, modal de confirmação ao encerrar e timer de expiração mais confiável.
+
+## O que muda no dia a dia
+- **Pro Suporte:** peça o código ao cliente, valide na tela de suporte e entre. Toda ação de escrita fica auditada — **não faça nada fora do escopo do atendimento**.
+- **Pro CS:** em caso difícil de descrever por texto, oriente o cliente a gerar o código na tela de Suporte e passar ao atendente.
+- **Pro Comercial:** use como diferencial — suporte mais ágil e seguro, sem pedir senha do cliente.
