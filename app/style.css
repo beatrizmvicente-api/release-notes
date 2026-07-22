@@ -348,7 +348,35 @@ table.before-after tbody td:last-child { background: var(--after-bg); }
 .home-title { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; color: var(--heading); margin: 0 0 8px; }
 .home-sub { font-size: 15px; color: var(--muted); margin: 0 0 14px; }
 
-.home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+/* Coluna única, agrupada por dia */
+.home-grid { display: flex; flex-direction: column; gap: 28px; max-width: 720px; }
+
+.day-group { display: flex; flex-direction: column; gap: 12px; }
+.day-head {
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.day-label {
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--muted);
+}
+.day-badge {
+  font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .03em;
+  color: var(--accent-text); background: var(--accent-weak);
+  border-radius: 999px; padding: 2px 9px;
+}
+.day-count { font-size: 12px; color: var(--faint); margin-left: auto; }
+.day-list { display: flex; flex-direction: column; gap: 10px; }
+
+/* Destaque do dia mais recente */
+.day-group.is-latest .day-label { color: var(--heading); }
+.day-group.is-latest .day-head { border-bottom-color: var(--accent); }
+.day-group.is-latest .home-card {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset, var(--shadow);
+}
+.day-group.is-latest .home-card-title { font-size: 16.5px; }
+
 .home-card {
   text-align: left; background: var(--panel); border: 1px solid var(--border);
   border-radius: 12px; padding: 15px 16px; cursor: pointer;
@@ -356,6 +384,7 @@ table.before-after tbody td:last-child { background: var(--after-bg); }
   transition: border-color .12s, box-shadow .12s, transform .12s;
 }
 .home-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow); transform: translateY(-1px); }
+.day-group.is-latest .home-card:hover { transform: translateY(-1px); box-shadow: 0 0 0 1px var(--accent) inset, var(--shadow-lg); }
 .home-card-top { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
 .home-card .ver {
   font-size: 10.5px; font-weight: 700; color: var(--accent-text);
@@ -374,5 +403,5 @@ table.before-after tbody td:last-child { background: var(--after-bg); }
   #sidebar.open { transform: translateX(0); }
   #viewer { padding: 24px 20px 80px; }
   #meta-bar .feature { font-size: 24px; }
-  .home-grid { grid-template-columns: 1fr; }
+  .home-grid { max-width: none; }
 }
