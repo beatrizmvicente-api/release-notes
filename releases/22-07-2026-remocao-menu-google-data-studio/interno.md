@@ -16,5 +16,6 @@ O valor que o cliente enxerga está nos dados dele — e esses dados precisam mo
 
 ## O que muda no dia a dia
 - **Pro Suporte:** "sumiu o menu Google Data Studio" é esperado — os dashboards agora ficam no menu **Dashboards** do Portal. Só é caso de mexer se o cliente realmente precisar do antigo.
-- **Pro CS:** se algum cliente ainda depende do Google Data Studio antigo, o time insere a flag manual pra aquele usuário — é exceção, não o padrão.
+- **Pro CS:** use como sinal de evolução — os dados do cliente agora vivem no Portal, com jornada mais limpa pro novo usuário. Quem ainda depende do Google Data Studio antigo recebe a flag na mão: exceção, não padrão.
+- **Pro Comercial:** vira argumento — o cliente vê o valor da API4COM dentro da própria plataforma, sem detour por ferramenta externa. Experiência mais redonda, principalmente pra quem está começando.
 - **Pro cliente:** nada a comunicar; a experiência de dashboards continua, agora nativa no Portal.
