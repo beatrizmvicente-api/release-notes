@@ -146,21 +146,69 @@ function showHome() {
   $('#sidebar').classList.remove('open');
 }
 
+/* "2026-07-22" -> "22 de Julho de 2026" */
+function dayLabel(sortable, fallback) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(sortable || '');
+  if (!m) return fallback || 'Sem data';
+  return `${parseInt(m[3], 10)} de ${MESES[parseInt(m[2], 10) - 1]} de ${m[1]}`;
+}
+
+/* Data local do navegador em "AAAA-MM-DD" */
+function todayISO() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
 function renderHome() {
   const grid = $('#homeGrid');
   grid.innerHTML = '';
+
+  // Agrupa por dia, preservando a ordem de releases[] (mais recente primeiro).
+  const groups = [];
+  const byKey = new Map();
   for (const r of releases) {
-    const card = document.createElement('button');
-    card.className = 'home-card';
-    const dots = (r.tags || []).map((t) => `<span class="tag-dot" style="background:${tagColor(t)}" title="${escape(t)}"></span>`).join('');
-    card.innerHTML =
-      (r.versao ? `<div class="home-card-top"><span class="ver">${escape(r.versao)}</span></div>` : '') +
-      `<div class="home-card-title">${escape(r.feature)}</div>` +
-      `<div class="home-card-sub"><span class="date">${escape(r.data || 's/ data')}</span>` +
-        (dots ? `<span class="tag-dots">${dots}</span>` : '') + `</div>`;
-    card.addEventListener('click', () => { location.hash = r.slug; });
-    grid.appendChild(card);
+    const key = r.dataSortable || 'sem-data';
+    let g = byKey.get(key);
+    if (!g) { g = { sortable: r.dataSortable, data: r.data, items: [] }; byKey.set(key, g); groups.push(g); }
+    g.items.push(r);
   }
+
+  const today = todayISO();
+  groups.forEach((g, gi) => {
+    const isLatest = gi === 0 && !!g.sortable;
+    const isToday = !!g.sortable && g.sortable === today;
+
+    const section = document.createElement('section');
+    section.className = 'day-group' + (isLatest ? ' is-latest' : '');
+
+    const badge = isToday ? '<span class="day-badge">Hoje</span>'
+      : isLatest ? '<span class="day-badge">Mais recente</span>' : '';
+    const n = g.items.length;
+    const head = document.createElement('div');
+    head.className = 'day-head';
+    head.innerHTML =
+      `<span class="day-label">${escape(dayLabel(g.sortable, g.data))}</span>` + badge +
+      `<span class="day-count">${n} release${n === 1 ? '' : 's'}</span>`;
+    section.appendChild(head);
+
+    const col = document.createElement('div');
+    col.className = 'day-list';
+    for (const r of g.items) {
+      const card = document.createElement('button');
+      card.className = 'home-card';
+      const dots = (r.tags || []).map((t) => `<span class="tag-dot" style="background:${tagColor(t)}" title="${escape(t)}"></span>`).join('');
+      card.innerHTML =
+        (r.versao ? `<div class="home-card-top"><span class="ver">${escape(r.versao)}</span></div>` : '') +
+        `<div class="home-card-title">${escape(r.feature)}</div>` +
+        `<div class="home-card-sub"><span class="date">${escape(r.data || 's/ data')}</span>` +
+          (dots ? `<span class="tag-dots">${dots}</span>` : '') + `</div>`;
+      card.addEventListener('click', () => { location.hash = r.slug; });
+      col.appendChild(card);
+    }
+    section.appendChild(col);
+    grid.appendChild(section);
+  });
 }
 
 function setAudience(a) {
