@@ -2,5 +2,5 @@
   "feature": "Migração dos dashboards pro Portal (menu Google Data Studio via flag)",
   "data": "22-07-2026",
   "versao": "TEL-2046",
-  "tags": ["Portal", "Dashboards", "UX", "Rollout"]
+  "tags": ["Portal", "Dashboards", "UX", "Feature flag"]
 }
