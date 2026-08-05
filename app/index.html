@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Release Notes — API4COM</title>
+  <link rel="stylesheet" href="/app/style.css" />
+</head>
+<body>
+  <header id="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>
+        <strong>Release Notes</strong>
+        <span class="brand-sub">Feito por Produto &amp; Engenharia · API4COM</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <a id="homeBtn" class="icon-btn" title="Início" aria-label="Página inicial" href="#">
+        <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      </a>
+      <button id="menuToggle" class="icon-btn" title="Menu" aria-label="Abrir lista">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <button id="themeToggle" class="icon-btn" title="Alternar tema" aria-label="Alternar tema">
+        <svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="layout">
+    <aside id="sidebar">
+      <div class="search-wrap">
+        <span class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+        <input id="search" type="search" placeholder="Buscar release, tag, versão..." autocomplete="off" />
+        <kbd class="search-kbd">/</kbd>
+      </div>
+      <div id="count" class="count"></div>
+      <nav id="list" aria-label="Lista de releases"></nav>
+    </aside>
+
+    <main id="main">
+      <div id="viewer">
+        <section id="home" class="home" hidden>
+          <div class="home-head">
+            <h1 class="home-title">Novidades do produto</h1>
+            <p class="home-sub">As últimas atualizações do produto, explicadas de forma objetiva.</p>
+          </div>
+          <div id="homeGrid" class="home-grid"></div>
+        </section>
+
+        <article id="content" hidden>
+          <div id="meta-bar"></div>
+
+          <div id="toolbar">
+            <div id="tabs" class="segmented" role="tablist">
+              <button class="seg active" data-tab="interno" role="tab">Versão para time interno</button>
+              <button class="seg" data-tab="externo" role="tab">Versão para o cliente</button>
+            </div>
+            <div class="toolbar-right">
+              <button id="copyBtn" class="copy-btn" title="Copiar para colar em e-mail/Slack">
+                <span class="copy-ico"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></span> <span class="copy-label">Copiar</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="doc" class="markdown"></div>
+        </article>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="/app/vendor/marked.min.js"></script>
+  <script src="/app/app.js"></script>
+</body>
+</html>

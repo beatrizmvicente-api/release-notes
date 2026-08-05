@@ -1,0 +1,6 @@
+{
+  "feature": "Remoção do menu Google Data Studio",
+  "data": "22-07-2026",
+  "versao": "TEL-2046",
+  "tags": ["Portal", "Dashboards", "UX", "Feature flag"]
+}
