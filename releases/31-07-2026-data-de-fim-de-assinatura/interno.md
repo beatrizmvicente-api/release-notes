@@ -29,7 +29,6 @@ Resultado: o encerramento é combinado uma vez, na conversa com o cliente, e aco
 
 ## Detalhes importantes
 - **A conta não fica só sem ilimitado — ela para de ligar.** Cancelada, volta pro modelo **Recarga com saldo zerado**: enquanto o cliente não recarregar, nenhuma chamada sai.
-- **O corte é na madrugada da própria data informada, não no fim dela.** Preencher 31/12 significa que o cliente perde IA e ilimitado **na virada para o dia 31/12**. Para ele usar até o último dia pago, preencha **o dia seguinte** ao fim do ciclo.
 - **Não existe aviso ao cliente.** Nenhum e-mail, banner ou notificação — ele descobre ao tentar usar. A comunicação é do CS.
 - **Cobrança já emitida não é cancelada.** A data fim impede cobranças **novas**; o que já foi gerado continua devido.
 - A assinatura **continua visível no Asaas**, com a data fim preenchida e o histórico de cobranças intacto.
@@ -39,13 +38,13 @@ Resultado: o encerramento é combinado uma vez, na conversa com o cliente, e aco
 ## Como validar
 1. Numa assinatura de teste, preencher a data de fim e salvar. No Asaas, a assinatura deve **continuar existindo**, agora exibindo a data fim.
 2. Antes da data: a assinatura segue **Ativa** e os usuários mantêm IA e Plano normalmente.
-3. Depois da virada do dia da data: assinatura **Cancelada**, usuários sem IA, conta em **Recarga com saldo zerado** e nenhuma cobrança nova gerada.
+3. Depois que a data passa: assinatura **Cancelada**, usuários sem IA, conta em **Recarga com saldo zerado** e nenhuma cobrança nova gerada.
 
 ## O que muda no dia a dia
 - **Pro Suporte:** novo campo **"Data de fim de assinatura"** na modal de assinatura — ao adicionar e ao editar.
 - **Pro Suporte (chamado novo):** *"não consigo mais ligar"* / *"minha IA parou"* — antes de tratar como incidente, confira se a conta tinha data de fim agendada. Se tinha e a data passou, é o esperado: a conta está em Recarga, zerada.
 - **Pro CS:** encerramento combinado na conversa já sai agendado, sem depender de lembrete. Se o cliente voltar atrás **antes** da data, basta limpar o campo.
-- **Pro CS (avise antes):** o produto não avisa ninguém, e o cliente **para de ligar** na virada do dia. Agendar sem combinar é derrubar a operação dele sem aviso.
-- **Pro Comercial:** dá pra fechar contrato com **prazo determinado** e garantir que a cobrança para na data combinada. Não muda: cobrança já emitida não é cancelada, e o corte é sempre à meia-noite do dia informado — não existe fim no meio do ciclo.
+- **Pro CS (avise antes):** o produto não avisa ninguém, e o cliente **para de ligar** quando a data chega. Agendar sem combinar é derrubar a operação dele sem aviso.
+- **Pro Comercial:** dá pra fechar contrato com **prazo determinado** e garantir que a cobrança para na data combinada. Não muda: cobrança já emitida não é cancelada, e o encerramento é sempre por dia inteiro — não existe fim no meio do dia.
 - **Pro Financeiro:** assinatura encerrada por data fim **fica no Asaas**, com a data preenchida e o histórico de cobranças completo para conferência.
 - **Pro cliente:** nenhum comunicado automático. Na data, perde IA e ilimitado e cai pra Recarga zerada — só volta a ligar recarregando. Se foi combinado, o aviso vem do CS.
