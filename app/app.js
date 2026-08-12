@@ -3,8 +3,15 @@
 /* Estado */
 let releases = [];
 let current = null;
+let currentMeta = null;
 let audience = 'interno';
 let loaded = { interno: '', externo: '' };
+
+/* Edição: só existe rodando local (npm start). No site publicado fica desligada. */
+let canEdit = false;
+let editing = false;
+let dirty = false;
+let pendingEdit = false;
 
 const $ = (s) => document.querySelector(s);
 
@@ -51,6 +58,9 @@ async function boot() {
     if (location.hash) location.hash = '';
     else showHome();
   });
+
+  // O editor (app/editor.js) só existe rodando local — o build da Vercel não o inclui.
+  if (typeof initEditor === 'function') initEditor();
 
   window.addEventListener('keydown', onKey);
   window.addEventListener('hashchange', routeFromHash);
@@ -115,24 +125,29 @@ async function open(slug) {
   if (!res.ok) return;
   const data = await res.json();
   loaded = { interno: data.interno, externo: data.externo };
+  currentMeta = data.meta || {};
 
   $('#home').hidden = true;
   $('#content').hidden = false;
 
-  const m = data.meta;
-  const tags = (m.tags || []).map((t) =>
-    `<span class="chip"><span class="tag-dot" style="background:${tagColor(t)}"></span>${escape(t)}</span>`).join('');
-  $('#meta-bar').innerHTML =
-    `<div class="feature">${escape(m.feature || slug)}</div>` +
-    `<div class="info">` +
-    (m.data ? `<span class="chip"><svg class="chip-ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>${escape(m.data)}</span>` : '') +
-    (m.versao ? `<span class="chip ver">${escape(m.versao)}</span>` : '') +
-    tags + `</div>`;
-
+  renderMetaBar(currentMeta, slug);
   renderDoc();
   renderList(currentFilter());
   $('#main').scrollTop = 0;
   $('#sidebar').classList.remove('open');
+
+  if (pendingEdit) { pendingEdit = false; startEdit(); }
+}
+
+function renderMetaBar(m, slug) {
+  const tags = (m.tags || []).map((t) =>
+    `<span class="chip"><span class="tag-dot" style="background:${tagColor(t)}"></span>${escape(t)}</span>`).join('');
+  $('#meta-bar').innerHTML =
+    `<div class="feature">${escape(m.feature || slug || '')}</div>` +
+    `<div class="info">` +
+    (m.data ? `<span class="chip"><svg class="chip-ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>${escape(m.data)}</span>` : '') +
+    (m.versao ? `<span class="chip ver">${escape(m.versao)}</span>` : '') +
+    tags + `</div>`;
 }
 
 /* ---------- Página inicial (home) ---------- */
@@ -195,6 +210,9 @@ function renderHome() {
     const col = document.createElement('div');
     col.className = 'day-list';
     for (const r of g.items) {
+      const wrap = document.createElement('div');
+      wrap.className = 'home-card-wrap';
+
       const card = document.createElement('button');
       card.className = 'home-card';
       const dots = (r.tags || []).map((t) => `<span class="tag-dot" style="background:${tagColor(t)}" title="${escape(t)}"></span>`).join('');
@@ -204,7 +222,12 @@ function renderHome() {
         `<div class="home-card-sub"><span class="date">${escape(r.data || 's/ data')}</span>` +
           (dots ? `<span class="tag-dots">${dots}</span>` : '') + `</div>`;
       card.addEventListener('click', () => { location.hash = r.slug; });
-      col.appendChild(card);
+      wrap.appendChild(card);
+
+      // Gancho do editor local; no site publicado a função não existe.
+      if (typeof decorateCardForEdit === 'function') decorateCardForEdit(wrap, r);
+
+      col.appendChild(wrap);
     }
     section.appendChild(col);
     grid.appendChild(section);
@@ -212,9 +235,11 @@ function renderHome() {
 }
 
 function setAudience(a) {
+  if (a === audience) return;
+  if (editing && dirty && !confirm('Descartar as alterações não salvas?')) return;
   audience = a;
   document.querySelectorAll('.seg').forEach((b) => b.classList.toggle('active', b.dataset.tab === a));
-  renderDoc();
+  if (editing) fillEditor(); else renderDoc();
   if (current) history.replaceState(null, '', `#${current}/${a}`);
 }
 
@@ -361,6 +386,7 @@ function selectRole(sec, value, silent) {
   if (!silent) localStorage.setItem('rn-role', value);
 }
 
+
 /* ---------- Copiar (rich + texto) ---------- */
 async function copyCurrent() {
   const md = loaded[audience] || '';
@@ -396,6 +422,15 @@ function toast(msg) {
 
 /* ---------- Roteamento por hash (#slug ou #slug/externo) ---------- */
 function routeFromHash() {
+  if (editing) {
+    const want = `#${current}/${audience}`;
+    if (location.hash === want) return;            // veio da nossa própria restauração
+    if (dirty && !confirm('Você tem alterações não salvas. Sair mesmo assim?')) {
+      location.hash = want;
+      return;
+    }
+    stopEdit();
+  }
   const raw = decodeURIComponent(location.hash.replace(/^#/, ''));
   if (!raw) { showHome(); return; }
   const [slug, aud] = raw.split('/');
@@ -407,6 +442,21 @@ function routeFromHash() {
 
 /* ---------- Teclado ---------- */
 function onKey(e) {
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === 's') {
+    if (!editing) return;
+    e.preventDefault();
+    saveEdit();
+    return;
+  }
+  if (mod && e.key.toLowerCase() === 'e') {
+    if (!canEdit || !current) return;
+    e.preventDefault();
+    editing ? cancelEdit() : startEdit();
+    return;
+  }
+  if (e.key === 'Escape' && editing) { e.preventDefault(); cancelEdit(); return; }
+
   const typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
   if (e.key === '/' && !typing) { e.preventDefault(); $('#search').focus(); return; }
   if (e.key === 'Escape' && typing) { document.activeElement.blur(); return; }

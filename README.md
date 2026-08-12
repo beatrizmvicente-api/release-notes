@@ -24,6 +24,20 @@ As duas versões saem da **mesma base de fatos** (o que mudou), mas com tom dife
 2. Preencha `interno.md` e `externo.md`.
 3. Siga o [Guia de tom](guia-de-tom.md) — é o que garante consistência entre releases.
 
+## Para revisar e ajustar o texto
+
+```
+npm start        →  http://localhost:4123
+```
+
+Com o servidor local rodando, cada release ganha um botão **Editar** no topo (ele não existe no site publicado). Ali dá pra:
+
+- reescrever o markdown com **prévia lado a lado**, atualizada enquanto você digita;
+- ajustar título, data, ticket e tags direto no formulário;
+- salvar com **Ctrl+S** — o texto vai direto pro `.md` da pasta, sem passar por lugar nenhum.
+
+`Ctrl+E` abre e fecha o editor, `Esc` descarta. A edição só funciona a partir da própria máquina (`localhost`); acessos de fora ficam somente leitura.
+
 ## Índice de releases
 
 <!-- Adicione uma linha por release, mais recente no topo -->

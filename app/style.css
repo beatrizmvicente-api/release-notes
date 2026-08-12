@@ -377,6 +377,11 @@ table.before-after tbody td:last-child { background: var(--after-bg); }
 }
 .day-group.is-latest .home-card-title { font-size: 16.5px; }
 
+/* Cada card vive dentro de um wrapper posicionado (o editor local ancora um
+   botão nele; sem o editor, o wrapper só repassa a largura da coluna). */
+.home-card-wrap { position: relative; display: flex; }
+.home-card-wrap > .home-card { flex: 1; }
+
 .home-card {
   text-align: left; background: var(--panel); border: 1px solid var(--border);
   border-radius: 12px; padding: 15px 16px; cursor: pointer;

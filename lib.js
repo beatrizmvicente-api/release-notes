@@ -61,4 +61,36 @@ function readOne(slug) {
   return { meta, interno: readMd('interno.md'), externo: readMd('externo.md') };
 }
 
-module.exports = { RELEASES_DIR, toSortable, readReleases, readOne };
+/* ---------- Escrita (usada só pelo servidor local, nunca pelo build) ---------- */
+
+// Resolve a pasta de uma release, bloqueando path traversal. null se não existir.
+function releaseDir(slug) {
+  if (!/^[\w .+-]+$/.test(slug || '')) return null;
+  const dir = path.join(RELEASES_DIR, slug);
+  if (!dir.startsWith(RELEASES_DIR) || !fs.existsSync(dir)) return null;
+  return dir;
+}
+
+// Grava interno.md / externo.md de uma release. Lança se slug ou tipo inválido.
+function writeDoc(slug, kind, content) {
+  if (kind !== 'interno' && kind !== 'externo') throw new Error('tipo inválido');
+  const dir = releaseDir(slug);
+  if (!dir) throw new Error('release não encontrada');
+  fs.writeFileSync(path.join(dir, `${kind}.md`), String(content), 'utf8');
+}
+
+// Grava meta.json preservando só os campos conhecidos.
+function writeMeta(slug, meta) {
+  const dir = releaseDir(slug);
+  if (!dir) throw new Error('release não encontrada');
+  const clean = {
+    feature: String(meta.feature || '').trim(),
+    data: String(meta.data || '').trim(),
+    versao: String(meta.versao || '').trim(),
+    tags: (Array.isArray(meta.tags) ? meta.tags : []).map((t) => String(t).trim()).filter(Boolean),
+  };
+  fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify(clean, null, 2) + '\n', 'utf8');
+  return clean;
+}
+
+module.exports = { RELEASES_DIR, toSortable, readReleases, readOne, writeDoc, writeMeta };
