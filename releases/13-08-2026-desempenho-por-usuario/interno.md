@@ -4,11 +4,9 @@ Agora dá pra ver quantas ligações viram conversa de verdade.
 ## Antes → Depois
 | Antes | Depois |
 |-------|--------|
-| A tabela dava **quanto** cada um ligou: total, taxa de atendimento e paciência | Dá também o que saiu disso: **rediscagem**, **chamadas significativas** e **chamadas canceladas** |
-| Cem chamadas para cem números e cem chamadas para o mesmo número **apareciam igual** | A coluna de **rediscagem** mostra a repetição no período, com a taxa de atendimento dela |
-| Nada media a **qualidade** da conversa | *Chamadas significativas* conta as que passaram de 2 min, e **"a cada 100 ligações"** estima quantas delas saem a cada cem chamadas |
-| A coluna se chamava **Paciência** — o nome não dizia o que ela media | Agora é **Espera antes de desligar**: quanto tempo a pessoa deixa tocar antes de cancelar |
-| O balão de ajuda (i) **empilhava dois na tela** e escapava pra fora da borda quando aberto pelo teclado | Um balão por vez, sempre dentro da tela |
+| A tabela mostrava o volume de chamadas, a taxa de atendimento e a paciência | Todas continuam, mas agora adicionamos mais informações para contextualizar o usuário: quantas foram **canceladas**, quantas foram **rediscagens**, a eficiência dessa rediscagem, e as **chamadas significativas** com a frequência que elas ocorrem |
+| Só dava pra ver **volume** de chamadas — nada media a qualidade dentro dele | *Chamadas significativas* conta as conversas acima de 2 min, as de alta conexão, e **"a cada 100 ligações"** mostra com que frequência elas acontecem |
+| A coluna **Paciência** tinha um nome pouco amigável | Virou **Espera antes de desligar**, o nome já diz o que ela mede |
 
 ## Por que importa
 O Dashboard media esforço, não resultado. Duzentas ligações num dia é um número bonito e não diz nada sobre a operação estar saudável.

@@ -4,10 +4,9 @@ Agora você vê quantas das suas ligações viram conversa de verdade.
 ## Antes → Depois
 | Antes | Depois |
 |-------|--------|
-| A tabela mostrava **quanto** seu time ligou: total, taxa de atendimento e paciência | Mostra também o que saiu disso: rediscagem, conversas acima de 2 minutos e chamadas canceladas |
-| Cem chamadas para cem números e cem chamadas para o mesmo número **apareciam igual** | A coluna de **rediscagem** mostra a repetição no período, com a taxa de atendimento dela |
-| Nada media a **qualidade** da conversa | *Chamadas significativas* conta as que passaram de 2 minutos, e **"a cada 100 ligações"** estima quantas delas saem a cada cem chamadas |
-| A coluna se chamava **Paciência** | Agora se chama **Espera antes de desligar**, que é o que ela mede |
+| A tabela mostrava o volume de chamadas, a taxa de atendimento e a paciência | Todas continuam, e entram **chamadas canceladas**, **rediscagem** (e a eficiência dela), **chamadas significativas** e a frequência que acontecem |
+| Dava pra ver **quanto** seu time ligou, não se aquilo virava conversa | *Chamadas significativas* conta as conversas acima de 2 minutos, e **"a cada 100 ligações"** mostra com que frequência elas acontecem |
+| A coluna **Paciência** tinha um nome pouco amigável | Virou **Espera antes de desligar**, o nome já diz o que ela mede |
 
 ## Como usar
 1. Abra o **Dashboard** e vá até a tabela **Desempenho por usuário**.
