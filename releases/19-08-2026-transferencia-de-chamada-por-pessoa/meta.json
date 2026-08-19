@@ -1,6 +1,10 @@
 {
-  "feature": "Transferir chamada escolhendo o colega numa lista",
+  "feature": "Transferir chamada no WebPhone para outro usuário",
   "data": "19-08-2026",
   "versao": "TEL-2112",
-  "tags": ["WebPhone", "Equipe", "Transferência"]
+  "tags": [
+    "WebPhone",
+    "Equipe",
+    "Transferência"
+  ]
 }

@@ -1,5 +1,7 @@
 ## Em uma frase
-Quem instala o Webphone agora já liga direto no primeiro número do contato.
+Quem instala o Webphone integrado ao CRM agora já liga direto no primeiro número do contato.
+
+WebPhone > Ajustes > Discagem no CRM > Discar 1º número
 
 ## Antes → Depois
 | Antes | Depois |
@@ -22,6 +24,7 @@ A escolha manual é útil pra contato com celular, fixo e comercial cadastrados.
 - O caminho contrário também vale: instalação nova que prefira escolher o número volta pro modo manual quando quiser.
 
 ## O que muda no dia a dia
+
 - **Pro Suporte:** *"o discador ligou direto sem me deixar escolher o número"* — é o novo padrão de instalação nova, e é reversível na configuração do discador.
 - **Pro Suporte (o inverso):** cliente antigo que ouviu falar do novo comportamento e não viu mudar — esperado, a configuração dele foi preservada. Basta trocar na mão.
 - **Pro CS:** vale mencionar em conta que reclama de lentidão no click-to-call — quem for reinstalar já pega o padrão novo.
