@@ -1,0 +1,10 @@
+{
+  "feature": "Padrão de modo de discagem no CRM passa a ser \"Discar 1º número\"",
+  "data": "19-08-2026",
+  "versao": "TEL-2208",
+  "tags": [
+    "WebPhone",
+    "CRM",
+    "Click-to-call"
+  ]
+}

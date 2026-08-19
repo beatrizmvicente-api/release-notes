@@ -11,10 +11,68 @@ const path = require('path');
 
 const RELEASES_DIR = path.join(__dirname, 'releases');
 
+// Imagens do antes/depois que moram na pasta da release.
+const IMAGEM = /\.(png|webp|jpe?g|gif|svg)$/i;
+
 // Converte "DD-MM-AAAA" em ordenável "AAAA-MM-DD" (retorna '' se inválido).
 function toSortable(data) {
   const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec((data || '').trim());
   return m ? `${m[3]}-${m[2]}-${m[1]}` : '';
+}
+
+/**
+ * Lê o visual.json da release — o antes/depois em imagem, com os passos da comparação.
+ * É opcional: release sem ele continua funcionando igual, só com o texto.
+ * Volta null se estiver ausente, quebrado ou incompleto — nunca derruba o build.
+ */
+function readVisual(dir) {
+  const arquivo = path.join(dir, 'visual.json');
+  if (!fs.existsSync(arquivo)) return null;
+  let v;
+  try {
+    v = JSON.parse(fs.readFileSync(arquivo, 'utf8'));
+  } catch (e) {
+    console.warn(`visual.json inválido em ${path.basename(dir)}: ${e.message}`);
+    return null;
+  }
+  const lado = (l) => (l && typeof l.src === 'string' && IMAGEM.test(l.src)
+    ? { src: l.src, rotulo: l.rotulo || '' } : null);
+  const antes = lado(v.antes);
+  const depois = lado(v.depois);
+  const passos = (Array.isArray(v.passos) ? v.passos : []).filter((p) => p && p.titulo);
+  // Sem os dois lados ou sem nenhum passo não há comparação para mostrar.
+  if (!antes || !depois || !passos.length) {
+    console.warn(`visual.json incompleto em ${path.basename(dir)}: precisa de antes.src, depois.src e ao menos um passo`);
+    return null;
+  }
+  // O arquivo citado tem que existir, senão o player abre com painel quebrado.
+  for (const [nome, l] of [['antes', antes], ['depois', depois]]) {
+    if (!fs.existsSync(path.join(dir, l.src))) {
+      console.warn(`visual.json em ${path.basename(dir)}: não achei ${nome}.src (${l.src})`);
+      return null;
+    }
+  }
+  return {
+    titulo: v.titulo || '',
+    resumo: v.resumo || '',
+    antes,
+    depois,
+    passos: passos.map((p) => ({
+      chip: p.chip || p.titulo,
+      titulo: p.titulo,
+      foco: p.foco || null,
+      antes: p.antes || '',
+      depois: p.depois || '',
+      semAntes: p.semAntes || '',
+    })),
+  };
+}
+
+// Nomes dos arquivos de imagem da release (o que server e build precisam servir).
+function mediaFiles(slug) {
+  const dir = releaseDir(slug);
+  if (!dir) return [];
+  return fs.readdirSync(dir).filter((f) => IMAGEM.test(f));
 }
 
 function readReleases() {
@@ -39,6 +97,7 @@ function readReleases() {
       dataSortable: toSortable(meta.data),
       versao: meta.versao || '',
       tags: Array.isArray(meta.tags) ? meta.tags : [],
+      temVisual: fs.existsSync(path.join(dir, 'visual.json')),
     });
   }
   // Mais recente primeiro; sem data cai pro fim.
@@ -58,7 +117,7 @@ function readOne(slug) {
     const p = path.join(dir, name);
     return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '';
   };
-  return { meta, interno: readMd('interno.md'), externo: readMd('externo.md') };
+  return { meta, interno: readMd('interno.md'), externo: readMd('externo.md'), visual: readVisual(dir) };
 }
 
 /* ---------- Escrita (usada só pelo servidor local, nunca pelo build) ---------- */
@@ -93,4 +152,8 @@ function writeMeta(slug, meta) {
   return clean;
 }
 
-module.exports = { RELEASES_DIR, toSortable, readReleases, readOne, writeDoc, writeMeta };
+module.exports = {
+  RELEASES_DIR, IMAGEM, toSortable,
+  readReleases, readOne, readVisual, mediaFiles, releaseDir,
+  writeDoc, writeMeta,
+};
