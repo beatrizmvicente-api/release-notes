@@ -1,0 +1,41 @@
+{
+  "_ajuda": [
+    "Antes e depois em imagem. Este arquivo é OPCIONAL — sem ele a release funciona só com o texto.",
+    "1. Tire os dois prints com: node scripts/print.js <url> antes.webp --largura=1000 --medir=#a,#b",
+    "2. Guarde antes.webp e depois.webp NESTA pasta.",
+    "3. O --medir devolve o foco de cada região já normalizado: [x, y, largura, altura] em fração da imagem.",
+    "O print do ANTES só existe antes de a mudança subir. Tire ele primeiro.",
+    "Apague este bloco depois de preencher."
+  ],
+  "titulo": "(o que a comparação mostra, em uma linha)",
+  "resumo": "(uma frase de apoio — opcional)",
+  "antes": { "src": "antes.webp", "rotulo": "(nome da tela como era)" },
+  "depois": { "src": "depois.webp", "rotulo": "(nome da tela como ficou)" },
+  "passos": [
+    {
+      "chip": "A tela inteira",
+      "titulo": "(o que se vê olhando a página toda)",
+      "foco": "tudo",
+      "antes": "(como era, em 1 ou 2 linhas — aceita <b>negrito</b>)",
+      "depois": "(como ficou)"
+    },
+    {
+      "chip": "(nome curto do passo)",
+      "titulo": "(a pergunta que este passo responde)",
+      "foco": {
+        "antes": [0.04, 0.8, 0.92, 0.17],
+        "depois": [0.66, 0.2, 0.32, 0.42]
+      },
+      "antes": "(o que essa região era)",
+      "depois": "(o que ela virou)"
+    },
+    {
+      "chip": "(passo que só existe agora)",
+      "titulo": "(o que nasceu nesta release)",
+      "foco": { "depois": [0.34, 0.21, 0.17, 0.03] },
+      "semAntes": "(frase curta no lugar do painel esquerdo — ex: A tela anterior não tem esse botão.)",
+      "antes": "(por que não havia equivalente)",
+      "depois": "(o que o novo elemento faz)"
+    }
+  ]
+}

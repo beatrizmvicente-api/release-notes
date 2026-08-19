@@ -4,6 +4,7 @@
  * Cria o esqueleto de uma nova release a partir dos templates.
  * Uso:  node scripts/novo.js "Nome da feature"
  *       node scripts/novo.js "Nome da feature" --data 05-07-2026
+ *       node scripts/novo.js "Nome da feature" --visual   (já com o antes/depois em imagem)
  */
 
 const fs = require('fs');
@@ -52,5 +53,15 @@ fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify(meta, null, 2) + '\
 fs.copyFileSync(path.join(TEMPLATES, 'interno.md'), path.join(dir, 'interno.md'));
 fs.copyFileSync(path.join(TEMPLATES, 'externo.md'), path.join(dir, 'externo.md'));
 
+const arquivos = ['meta.json', 'interno.md', 'externo.md'];
+if (args.includes('--visual')) {
+  fs.copyFileSync(path.join(TEMPLATES, 'visual.json'), path.join(dir, 'visual.json'));
+  arquivos.push('visual.json');
+}
+
 console.log(`Criado: releases/${folderName}`);
-console.log('  meta.json  interno.md  externo.md');
+console.log('  ' + arquivos.join('  '));
+if (args.includes('--visual')) {
+  console.log('\n  Tire o print do ANTES agora, enquanto a mudança não subiu:');
+  console.log(`  node scripts/print.js <url> releases/${folderName}/antes.webp --largura=1000 --medir=#regiao`);
+}

@@ -16,7 +16,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { readReleases, readOne, writeDoc, writeMeta } = require('./lib');
+const { readReleases, readOne, releaseDir, IMAGEM, writeDoc, writeMeta } = require('./lib');
 
 const ROOT = __dirname;
 const APP_DIR = path.join(ROOT, 'app');
@@ -28,6 +28,11 @@ const MIME = {
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
 };
 
 // Servidor de trabalho: nada pode ficar em cache, senão editar um arquivo e
@@ -110,6 +115,19 @@ const server = http.createServer((req, res) => {
     const one = readOne(slug);
     return one ? sendJSON(res, 200, one) : sendJSON(res, 404, { error: 'não encontrado' });
   }
+  // /media/<slug>/<arquivo> — as imagens do antes/depois, direto da pasta da release.
+  // Mesmo caminho que o build gera em public/media/, então o cliente é igual nos dois.
+  if (pathname.startsWith('/media/')) {
+    const resto = pathname.slice('/media/'.length);
+    const corte = resto.indexOf('/');
+    if (corte < 1) { res.writeHead(404); return res.end(); }
+    const dir = releaseDir(resto.slice(0, corte));
+    const arquivo = resto.slice(corte + 1);
+    // Só imagem, só arquivo solto na pasta da release — nada de subir diretório.
+    if (!dir || !IMAGEM.test(arquivo) || /[\\/]/.test(arquivo)) { res.writeHead(404); return res.end(); }
+    return sendFile(res, path.join(dir, arquivo));
+  }
+
   if (pathname.startsWith('/app/')) {
     const rel = pathname.slice('/app/'.length);
     const filePath = path.join(APP_DIR, rel);

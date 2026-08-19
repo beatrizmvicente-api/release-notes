@@ -21,6 +21,26 @@ O que torna um release moroso não é o assunto — é o formato. Cinco regras q
 4. **Corte o que o leitor já deduz.** Se a linha só repete o que o título ou o antes/depois já disseram, apague. Densidade cansa mais que tamanho.
 5. **Um fecho leve por item, quando couber.** Uma "moral" de meia linha fecha a ideia sem inflar: "resultado: ninguém mais trava". Opcional — só quando ajuda, nunca de enfeite.
 
+## O antes e depois em imagem
+
+Quando a release mexe numa **tela**, o antes e depois deixa de ser tabela e vira as duas
+versões lado a lado, com a câmera parando em cada ponto que mudou. O que o texto explica
+em três linhas, a imagem resolve em um segundo. (Como montar: [README](README.md#o-antes-e-depois-em-imagem).)
+
+1. **Só quando a mudança é visível.** Mudou regra de cobrança, prazo, integração? Fica no
+   texto. Comparador de tela para mudança que não aparece na tela vira enfeite.
+2. **Um passo, uma pergunta.** "Onde o cliente vê quanto vai pagar" é um passo. "Melhorias
+   na tela" não é. Entre 4 e 6 passos; o primeiro é sempre a página inteira, para ancorar.
+3. **A legenda diz o que mudou, não o que se vê.** "Resumo fixo ao lado, atualiza junto com
+   a seleção" vale; "no canto direito há um painel verde" não — isso a pessoa já está vendo.
+4. **A legenda serve aos dois públicos.** O comparador fica acima das abas: é a mesma tela
+   para o time e para o cliente. Se a frase só faz sentido internamente, ela é do `interno.md`.
+5. **O que nasceu agora também é um passo.** Elemento sem equivalente no antes usa `semAntes`,
+   e o painel esquerdo diz isso na cara — a ausência é parte da comparação.
+
+E a regra sem a qual nada disso existe: **o print do "antes" só existe antes de subir**.
+Ele entra no checklist da entrega, não na hora de escrever o release.
+
 ## Tom por público
 
 | | Interno | Externo |
@@ -37,6 +57,8 @@ Revolucionário, incrível, disruptivo, simplesmente, apenas (minimizando esfor�
 ## Checklist antes de publicar
 
 - [ ] Dá pra entender a feature lendo só o título + antes/depois?
+- [ ] Se a mudança é de tela: tirei o print do **antes** antes de subir?
+- [ ] Cada passo do comparador responde uma pergunta — e a legenda diz o que mudou, não o que se vê?
 - [ ] O "Em uma frase" tem uma ideia só e cabe num respiro (~14 palavras)?
 - [ ] Nenhuma linha virou parágrafo? Casos complexos em sub-itens?
 - [ ] O "Por que importa" do interno lidera pela dor/valor de negócio?
