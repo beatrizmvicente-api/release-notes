@@ -17,8 +17,8 @@ Resultado: a consulta pesada deixa de existir por padrão, e o número que sai d
 ## As mudanças
 1. **Consulta sem período recebe os últimos 30 dias** — vale para relatórios, dashboard e os endpoints usados pelo portal de parceiros.
    - Quem informa o período continua recebendo exatamente o que pediu, inclusive um ano inteiro.
-
-2. **Os dois caminhos internos de consulta passam a responder igual** — antes, a mesma pergunta podia voltar diferente conforme quem a atendeu.
+2. **Filtro de duração passa a respeitar os dois limites** — "entre X e Y segundos" deixava o teto de fora e trazia chamadas acima dele.
+3. **Os dois caminhos internos de consulta passam a responder igual** — antes, a mesma pergunta podia voltar diferente conforme quem a atendeu.
 
 ## Detalhe importante
 - A janela de 30 dias **só entra quando nenhum período é informado**. Ela não corta quem pediu um intervalo maior.

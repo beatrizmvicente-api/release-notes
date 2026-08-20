@@ -1,3 +1,6 @@
+## Em uma frase
+A tela de contratação virou uma lista de pessoas com o total sempre à vista.
+
 ## Por que importa
 O cliente chegava nessa tela já decidido — falou com você, aceitou a proposta, clicou pra pagar. E a tela recomeçava a venda: dois blocos de convencimento antes de qualquer campo, e o preço escondido lá embaixo.
 
@@ -7,14 +10,11 @@ O cliente chegava nessa tela já decidido — falou com você, aceitou a propost
 
 Resultado: menos gente travando no último passo, menos ligação de "não entendi o que eu vou pagar" — e o plano recomendado passa a ser o que cabe no uso.
 
-## As mudanças
-O redesenho está no antes e depois acima. 
-
-
 ## Detalhes importantes
 - **Nada mudou em plano, preço ou fluxo de pagamento.** Mesmos planos, mesmos valores, mesmo checkout.
 - A sugestão sai do **consumo do mês selecionado** no filtro. Trocar o mês reinicia as escolhas do time — é o comportamento esperado, mas avise o cliente antes de ele perder o que montou.
 - **Mês sem ligação nenhuma não gera sugestão**, e sem sugestão o botão "Sugestão inteligente" não aparece.
+- **O filtro de mês e a coluna Consumo aparecem sempre** — antes os dois sumiam em conta sem ligação no mês corrente, e a pessoa ficava sem como olhar outro mês.
 - A regra segue sendo **um plano por usuário**.
 
 ## O que muda no dia a dia
