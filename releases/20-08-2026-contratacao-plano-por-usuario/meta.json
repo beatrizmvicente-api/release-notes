@@ -1,10 +1,11 @@
 {
   "feature": "Contratação: um plano por usuário, com sugestão por consumo",
-  "data": "18-08-2026",
-  "versao": "TEL-2160",
+  "data": "20-08-2026",
+  "versao": "TEL-2160 · TEL-2227",
   "tags": [
     "Portal",
     "Contratação",
-    "Planos"
+    "Planos",
+    "Correções"
   ]
 }
