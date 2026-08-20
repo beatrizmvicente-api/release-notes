@@ -216,6 +216,16 @@ function montarPlayer(host, v, slug) {
       ${v.resumo ? `<p class="ba-lead">${escape(v.resumo)}</p>` : ''}
     </div>
     <ul class="ba-steps"></ul>
+    <div class="ba-caption">
+      <div class="ba-cap-head">
+        <span class="ba-eyebrow ba-passo"></span>
+        <h3 class="ba-cap-title"></h3>
+      </div>
+      <div class="ba-cap-cols">
+        <div class="ba-cap ba-cap--antes"><h4>Antes</h4><p></p></div>
+        <div class="ba-cap ba-cap--depois"><h4>Depois</h4><p></p></div>
+      </div>
+    </div>
     <div class="ba-stage">
       ${painel('antes', 'Como era', v.antes)}
       ${painel('depois', 'Como ficou', v.depois)}
@@ -226,16 +236,6 @@ function montarPlayer(host, v, slug) {
       <button class="ba-btn" data-acao="next" aria-label="Próximo passo">${ICONE.next}</button>
       <div class="ba-track"><i></i></div>
       <span class="ba-counter"></span>
-    </div>
-    <div class="ba-caption">
-      <div class="ba-cap-head">
-        <span class="ba-eyebrow ba-passo"></span>
-        <h3 class="ba-cap-title"></h3>
-      </div>
-      <div class="ba-cap-cols">
-        <div class="ba-cap ba-cap--antes"><h4>Antes</h4><p></p></div>
-        <div class="ba-cap ba-cap--depois"><h4>Depois</h4><p></p></div>
-      </div>
     </div>`;
   host.appendChild(sec);
 
@@ -388,9 +388,29 @@ function montarPlayer(host, v, slug) {
   }, { threshold: 0.3 });
   observador.observe(sec);
 
-  /* --- a régua muda de tamanho: recalcula a câmera --- */
+  /* --- a legenda vem antes das imagens: reserva a altura do passo mais longo,
+         senão trocar de passo empurra as telas pra cima e pra baixo --- */
+  function reservarAltura() {
+    const cap = q('.ba-caption');
+    const titulo = q('.ba-cap-title');
+    const [pa, pd] = [q('.ba-cap--antes p'), q('.ba-cap--depois p')];
+    cap.style.minHeight = '';
+    let maior = 0;
+    for (const p of v.passos) {
+      titulo.textContent = p.titulo;
+      pa.innerHTML = textoRico(p.antes);
+      pd.innerHTML = textoRico(p.depois);
+      maior = Math.max(maior, cap.offsetHeight);
+    }
+    cap.style.minHeight = `${maior}px`;
+  }
+
+  /* --- a régua muda de tamanho: recalcula a câmera e a altura da legenda --- */
   let t = null;
-  const aoRedimensionar = () => { clearTimeout(t); t = setTimeout(() => ir(idx), 120); };
+  const aoRedimensionar = () => {
+    clearTimeout(t);
+    t = setTimeout(() => { reservarAltura(); ir(idx); }, 120);
+  };
   window.addEventListener('resize', aoRedimensionar);
 
   // As imagens podem chegar depois; sem o tamanho real não dá para posicionar.
@@ -399,6 +419,7 @@ function montarPlayer(host, v, slug) {
   });
 
   if (reduzido) sec.classList.add('ba-sem-animacao');
+  reservarAltura();
   ir(0);
 
   return {

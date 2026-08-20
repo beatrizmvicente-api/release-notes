@@ -508,8 +508,9 @@ table.before-after tbody td:last-child { background: var(--after-bg); }
 .ba-track > i { display: block; height: 100%; width: 0; background: var(--accent); }
 .ba-counter { font-size: 12px; color: var(--faint); font-variant-numeric: tabular-nums; }
 
-/* Legenda do passo */
-.ba-caption { margin-top: 16px; }
+/* Legenda do passo — fica entre os chips e as imagens: o leitor sabe o que
+   procurar antes de olhar. */
+.ba-caption { margin: 0 0 12px; }
 .ba-cap-head { margin-bottom: 10px; }
 .ba-cap-title { font-size: 16px; font-weight: 700; color: var(--heading); margin: 3px 0 0; line-height: 1.35; }
 .ba-cap-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

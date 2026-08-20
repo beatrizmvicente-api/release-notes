@@ -1,0 +1,51 @@
+{
+  "titulo": "A tela de contratação, antes e depois",
+  "resumo": "Mesmos planos, mesmos preços, mesmo fluxo de pagamento. O que muda é como o cliente escolhe — e quanto ele precisa entender sozinho para chegar ao total.",
+  "antes": { "src": "antes.webp", "rotulo": "Contratar Plano — como era" },
+  "depois": { "src": "depois.webp", "rotulo": "Revise a assinatura da sua equipe" },
+  "passos": [
+    {
+      "chip": "A tela inteira",
+      "titulo": "A página inteira, do mesmo jeito que o cliente recebe",
+      "foco": "tudo",
+      "antes": "Cinco blocos empilhados: dois textos de convencimento, três cards de preço, a tabela de usuários e — só no fim — o resumo. É <b>quase um terço mais de página para rolar</b>, e o total só aparece lá embaixo.",
+      "depois": "A decisão e a conta dividem a mesma tela: a lista de usuários à esquerda, o <b>resumo da cobrança fixo à direita</b>. A comparação de planos desce para o rodapé, como consulta."
+    },
+    {
+      "chip": "A abertura",
+      "titulo": "O que aparece primeiro",
+      "foco": { "antes": [0.04, 0.0858, 0.92, 0.1871], "depois": [0.02, 0.0198, 0.96, 0.1628] },
+      "antes": "Abre com “Modelo Anterior × Novo Modelo Inteligente” — <b>o argumento de venda que o cliente já ouviu de você</b>, ocupando a primeira dobra inteira antes de qualquer ação.",
+      "depois": "Abre com a tarefa. O título muda conforme o cliente (revisão, para quem está migrando; escolha, para quem é novo) e uma faixa de três itens resume o modelo: <b>um plano por usuário, escolha pelo perfil de uso, valor fixo por mês</b>."
+    },
+    {
+      "chip": "Escolher o plano",
+      "titulo": "Definir o plano de cada pessoa",
+      "foco": { "antes": [0.04, 0.4303, 0.92, 0.3564], "depois": [0.02, 0.2008, 0.62, 0.446] },
+      "antes": "A lista vem <b>agrupada por plano</b>: a mesma pessoa muda de lugar quando você troca o plano dela, e um grupo recolhido esconde quem está dentro.",
+      "depois": "<b>Uma linha por pessoa, em ordem fixa</b> — trocar o plano não muda ninguém de lugar. Um seletor por usuário, “Aplicar a todos” para resolver o time de uma vez, e quem estourou o limite aparece com o número em laranja."
+    },
+    {
+      "chip": "Resumo e total",
+      "titulo": "Onde o cliente vê quanto vai pagar",
+      "foco": { "antes": [0.04, 0.801, 0.92, 0.1752], "depois": [0.66, 0.2008, 0.32, 0.4159] },
+      "antes": "O resumo fica <b>no fim da página</b>. Para ver o efeito de uma troca de plano, o cliente rola até o fim, confere e volta.",
+      "depois": "Resumo <b>fixo ao lado</b>: total por plano, total/mês, data de vencimento e o botão. Atualiza junto com a seleção. Falta alguém sem plano? A tela diz, e o botão não libera."
+    },
+    {
+      "chip": "Comparar planos",
+      "titulo": "Como o cliente compara os planos",
+      "foco": { "antes": [0.04, 0.292, 0.92, 0.124], "depois": [0.02, 0.6633, 0.96, 0.2691] },
+      "antes": "Três cards de preço no topo, <b>antes</b> de o cliente saber quanto o time consome. Comparar recursos exige ler card a card e guardar de cabeça.",
+      "depois": "Vira uma <b>tabela de comparação no rodapé</b> — depois da decisão, para consulta — com preço, minutos, recursos e a coluna do plano sugerido marcada como <b>Recomendado</b>."
+    },
+    {
+      "chip": "Sugestão inteligente",
+      "titulo": "O botão que devolve a recomendação",
+      "foco": { "depois": [0.3419, 0.2156, 0.1661, 0.0272] },
+      "semAntes": "A tela anterior não tem esse botão.",
+      "antes": "Depois que o cliente troca o plano de alguém, não há como voltar à sugestão: só trocando o mês no filtro — o que reinicia as escolhas do time inteiro — ou recarregando a página.",
+      "depois": "Assim que alguém sai do plano sugerido, nasce o botão <b>Sugestão inteligente</b> no cabeçalho da lista. Um clique devolve o time todo à recomendação por consumo do mês selecionado."
+    }
+  ]
+}
