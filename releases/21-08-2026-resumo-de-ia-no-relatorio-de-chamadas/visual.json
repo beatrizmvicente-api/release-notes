@@ -1,8 +1,14 @@
 {
   "titulo": "Onde o resumo da IA passou a ficar",
-  "resumo": "As mesmas dez ligações, na mesma conta e no mesmo minuto. A comparação aqui é só uma: onde o cliente lê o que a IA produziu.",
-  "antes": { "src": "antes.webp", "rotulo": "Relatórios — sem nenhum vestígio de IA" },
-  "depois": { "src": "depois.webp", "rotulo": "Relatórios — com resumo e análise" },
+  "resumo": "A mesma conta, no mesmo dia. À direita, as ligações estão ordenadas pela duração — são as que têm o que resumir. A comparação aqui é só uma: onde o cliente lê o que a IA produziu.",
+  "antes": {
+    "src": "antes.webp",
+    "rotulo": "Relatórios — sem nenhum vestígio de IA"
+  },
+  "depois": {
+    "src": "depois.webp",
+    "rotulo": "Relatórios — com resumo e análise"
+  },
   "passos": [
     {
       "chip": "A tela inteira",
@@ -14,7 +20,14 @@
     {
       "chip": "As duas colunas",
       "titulo": "O que a IA acrescenta em cada linha",
-      "foco": { "depois": [0.762, 0.15, 0.178, 0.152] },
+      "foco": {
+        "depois": [
+          0.769,
+          0.153,
+          0.168,
+          0.123
+        ]
+      },
       "semAntes": "A tela anterior não tem coluna de IA nenhuma.",
       "antes": "O resumo era gerado e cobrado, mas não tinha representação na tela. Quem não integrou CRM pagava pela IA e não tinha onde ler.",
       "depois": "<b>Resumo gerencial</b> e <b>Análise qualitativa</b>, uma ao lado da outra, com um botão <b>Ver</b> por linha. Elas só existem para conta com IA ativa — sem o recurso, não aparecem nem na engrenagem."
@@ -22,7 +35,14 @@
     {
       "chip": "O resumo aberto",
       "titulo": "Como o cliente lê, sem sair da tabela",
-      "foco": { "depois": [0.1575, 0.3133, 0.8073, 0.3788] },
+      "foco": {
+        "depois": [
+          0.1575,
+          0.2877,
+          0.8069,
+          0.3664
+        ]
+      },
       "semAntes": "Não há equivalente: o texto vivia no CRM.",
       "antes": "Para ler o resumo de cinco atendimentos do dia, eram cinco negócios abertos no CRM, um a um.",
       "depois": "O texto abre <b>na própria linha</b>, sem modal e sem trocar de tela. Abrir um dos dois já carrega o outro. <i>(o conteúdo está borrado no print: é conversa real de cliente)</i>"
