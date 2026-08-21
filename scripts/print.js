@@ -20,6 +20,8 @@
  *   --seletor=#app      captura só esse elemento, em vez da página inteira
  *   --espera=600        ms de espera depois do load, para animação assentar (padrão: 600)
  *   --preparo=arq.js    roda esse JS na página antes de medir e capturar
+ *   --semente=arq.js    roda esse JS ANTES de a página carregar, a cada navegação — é
+ *                       assim que se semeia o token de uma tela que exige login
  *   --medir=#a,#b       além do print, imprime o retângulo normalizado de cada
  *                       seletor ([x, y, largura, altura] em fração da imagem)
  *
@@ -58,6 +60,7 @@ const ESCALA = parseFloat(flag('escala', '2'));
 const SELETOR = flag('seletor', null);
 const ESPERA = parseInt(flag('espera', '600'), 10);
 const PREPARO = flag('preparo', null);
+const SEMENTE = flag('semente', null);
 const MEDIR = (flag('medir', '') || '').split(',').map((s) => s.trim()).filter(Boolean);
 const QUALIDADE = parseInt(flag('qualidade', '88'), 10);
 
@@ -182,6 +185,14 @@ async function main() {
   await chama('Emulation.setDeviceMetricsOverride', {
     width: LARGURA, height: ALTURA, deviceScaleFactor: ESCALA, mobile: false,
   });
+
+  // --semente roda ANTES de qualquer script da página, em toda navegação. É o gancho para
+  // telas que exigem login: semear o token que o app lê no boot. O --preparo não serve aqui,
+  // porque ele só roda depois que o app já bootou — e já redirecionou para o login.
+  if (SEMENTE) {
+    const js = fs.readFileSync(path.resolve(SEMENTE), 'utf8');
+    await chama('Page.addScriptToEvaluateOnNewDocument', { source: js });
+  }
 
   const carregou = cdp.espera('Page.loadEventFired');
   await chama('Page.navigate', { url });
