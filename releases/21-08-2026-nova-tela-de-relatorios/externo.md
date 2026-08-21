@@ -1,24 +1,20 @@
 ## O que mudou
-O **resumo da IA** agora fica na tela de Relatórios — antes ele só aparecia dentro do seu CRM.
+Relatórios ganhou visual novo e um segundo relatório: o de **Usuários**, com a taxa de atendimento de cada pessoa do time.
 
 ## Como usar
 1. Abra **Relatórios** no menu lateral (era "Relatório de Chamadas").
-2. Filtre o que quer olhar: período, usuário, duração, motivo do desligamento.
-3. Na linha da ligação, clique em **Ver** na coluna **Resumo gerencial** — o texto abre ali mesmo.
-4. **Análise qualitativa** funciona igual, na coluna ao lado.
-5. Use a **engrenagem** à direita da tabela para escolher quais colunas aparecem.
+2. Escolha o relatório no seletor do topo: **Chamadas** ou **Usuários**.
+3. Ajuste os filtros — período, tipo de chamada, usuário, número discado, motivo do desligamento e duração. Eles aplicam na hora, sem botão.
+4. Clique na **engrenagem** à direita da tabela para escolher quais colunas aparecem.
+5. Exporte pelo ícone de download: o arquivo sai com as mesmas colunas e o mesmo recorte que estão na tela.
 
 ## Também nesta atualização
-- **Relatório de Usuários:** troque o seletor do topo para **Usuários** e veja, por pessoa, total de chamadas, atendidas, **taxa de atendimento**, contatos únicos, rediscagem, tempo total e tempo médio em atendimento.
-- Os filtros **aplicam na hora**, sem botão. Cada um vira uma etiqueta com ✕ para remover.
+- **Relatório de Usuários:** total de chamadas, atendidas, taxa de atendimento, contatos únicos, rediscagem, tempo total e tempo médio em atendimento — por pessoa.
 - Cada coluna **ordena pelo próprio cabeçalho**, nos dois relatórios.
-- Exporte pelo ícone de download: o arquivo sai com as mesmas colunas e o mesmo recorte da tela.
+- Cada filtro aplicado vira uma **etiqueta** no topo, com um ✕ para remover só aquele.
 - **"Causa do desligamento"** passou a se chamar **"Motivo do desligamento"**, e **"Atendente"** virou **"Usuário"**.
 
 ## Bom saber
-- As colunas de IA aparecem para contas com o recurso ativo.
-- Nem toda ligação tem resumo: chamada não atendida, ou anterior à contratação da IA, abre avisando que não há.
-- No arquivo exportado de Chamadas, as colunas de IA não entram — o texto é aberto na tela, chamada por chamada.
 - **Contatos únicos** conta números diferentes: três ligações para o mesmo cliente contam como um contato.
 - O período do filtro vai até **30 dias**. Para um intervalo maior, faça em partes.
 - Para exportar, deixe ao menos uma coluna marcada na engrenagem.

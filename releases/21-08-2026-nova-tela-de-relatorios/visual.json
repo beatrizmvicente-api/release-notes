@@ -1,6 +1,6 @@
 {
   "titulo": "A tela de Relatórios, antes e depois",
-  "resumo": "As mesmas dez ligações, na mesma conta e no mesmo minuto. O que muda é o que o cliente consegue fazer com elas.",
+  "resumo": "Os mesmos dados de chamadas, na mesma conta e no mesmo dia. O que muda é quanto trabalho o cliente precisa ter para chegar à pergunta que ele realmente faz: quem no time está atendendo.",
   "antes": { "src": "antes.webp", "rotulo": "Histórico de Chamadas — como era" },
   "depois": { "src": "depois.webp", "rotulo": "Relatórios" },
   "passos": [
@@ -8,31 +8,33 @@
       "chip": "A tela inteira",
       "titulo": "A página inteira, do mesmo jeito que o cliente recebe",
       "foco": "tudo",
-      "antes": "Um relatório só, num card chamado <b>\"Histórico de Chamadas\"</b> — nome que promete lista, não resposta. Os filtros que importam ficam fechados atrás de \"Filtros Avançados\", e a tabela vem com as mesmas doze colunas para todo mundo.",
-      "depois": "Vira <b>\"Relatórios\"</b>, no menu e na tela. Dois relatórios num seletor, filtros abertos numa linha só, ordenação por coluna, engrenagem para escolher o que aparece — e o resumo da IA a um clique de cada linha."
+      "antes": "Um relatório só, num card sem cabeçalho de página. Os filtros que importam ficam <b>fechados atrás de \"Filtros Avançados\"</b>, e a tabela vem com as mesmas doze colunas para todo mundo, sem como escolher.",
+      "depois": "Cabeçalho de página, <b>dois relatórios num seletor</b> e os filtros todos abertos numa linha só. A tabela ganha ordenação por coluna e uma engrenagem para escolher o que aparece."
     },
     {
-      "chip": "Resumo da IA",
-      "titulo": "Onde o cliente lê o que a IA produziu",
-      "foco": { "depois": [0.1575, 0.3133, 0.8073, 0.3788] },
-      "semAntes": "A tela anterior não tem IA em lugar nenhum.",
-      "antes": "O resumo existia, era gerado e cobrado — mas só chegava dentro do CRM, colado no negócio. Quem não integrou CRM pagava pela IA e não tinha onde ler.",
-      "depois": "Cada linha ganha <b>Resumo gerencial</b> e <b>Análise qualitativa</b>. Um clique em <b>Ver</b> abre o texto na própria tabela, sem sair da tela. <i>(o conteúdo está borrado no print: é conversa real de cliente)</i>"
+      "chip": "A abertura",
+      "titulo": "Como a tela se apresenta",
+      "foco": {
+        "antes": [0.1588, 0.097, 0.8235, 0.0959],
+        "depois": [0.1588, 0.0694, 0.8235, 0.0367]
+      },
+      "antes": "Chama-se <b>\"Histórico de Chamadas\"</b> — nome que promete lista, não resposta. Ao lado do download, um botão leva a um vídeo de tutorial no YouTube.",
+      "depois": "Vira <b>\"Relatórios\"</b>, no menu e na tela, com um subtítulo que diz o que há ali: chamadas <b>e usuários</b>. O botão do YouTube saiu."
     },
     {
-      "chip": "Relatório de Usuários",
-      "titulo": "A pergunta que a tela não respondia",
-      "foco": { "depois": [0.2044, 0.0853, 0.1016, 0.0188] },
+      "chip": "Escolher o relatório",
+      "titulo": "O relatório de Usuários, que não existia",
+      "foco": { "depois": [0.2405, 0.1408, 0.1196, 0.031] },
       "semAntes": "A tela anterior tem um relatório só.",
-      "antes": "Para saber quem atende e quem deixa tocar, o caminho era exportar o histórico e montar a conta na planilha — a taxa de atendimento não aparecia em lugar nenhum.",
+      "antes": "Para saber quem atende e quem deixa tocar, o caminho era exportar o histórico e montar a conta na planilha — a taxa de atendimento não aparecia em lugar nenhum da tela.",
       "depois": "Um seletor alterna entre <b>Chamadas</b> e <b>Usuários</b>. O de Usuários traz uma linha por pessoa, com <b>taxa de atendimento</b>, contatos únicos, rediscagem e tempo médio já calculados."
     },
     {
       "chip": "Filtrar",
       "titulo": "O que é preciso fazer para filtrar",
       "foco": {
-        "antes": [0.145, 0.203, 0.83, 0.058],
-        "depois": [0.1455, 0.1232, 0.829, 0.0206]
+        "antes": [0.17, 0.203, 0.8, 0.058],
+        "depois": [0.1712, 0.2034, 0.7988, 0.0339]
       },
       "antes": "Escolher o período, abrir <b>\"Filtros Avançados\"</b>, preencher no painel que desce, e só então clicar em <b>Aplicar</b>. Todo filtro custa um clique a mais no fim.",
       "depois": "Os seis filtros ficam à vista e <b>aplicam ao escolher</b> — os botões Aplicar e Limpar deixaram de existir. Cada filtro ativo vira uma etiqueta que se remove sozinha."
@@ -41,16 +43,16 @@
       "chip": "A tabela",
       "titulo": "O que a tabela deixa o cliente fazer",
       "foco": {
-        "antes": [0.145, 0.3044, 0.83, 0.0346],
-        "depois": [0.1455, 0.1512, 0.8313, 0.0294]
+        "antes": [0.1706, 0.3044, 0.8, 0.0346],
+        "depois": [0.1712, 0.2496, 0.7988, 0.0486]
       },
       "antes": "Cabeçalhos fixos, sem ordenação. <b>\"Causa do desligamento\"</b> e <b>\"Atendente\"</b> — nomes que o resto do portal não usa.",
-      "depois": "Cada coluna <b>ordena pelo próprio cabeçalho</b>. \"Causa\" virou <b>\"Motivo do desligamento\"</b>, \"Atendente\" virou <b>\"Usuário\"</b>, e entram as duas colunas de IA no fim."
+      "depois": "Cada coluna <b>ordena pelo próprio cabeçalho</b>. \"Causa\" virou <b>\"Motivo do desligamento\"</b> e \"Atendente\" virou <b>\"Usuário\"</b>, alinhando com as outras telas."
     },
     {
       "chip": "Escolher colunas",
       "titulo": "Quem decide o que aparece na tabela",
-      "foco": { "depois": [0.9353, 0.1512, 0.0415, 0.0294] },
+      "foco": { "depois": [0.9212, 0.2496, 0.0488, 0.0486] },
       "semAntes": "A tela anterior não tem esse controle.",
       "antes": "As doze colunas vinham sempre, na mesma ordem, para toda conta — e o arquivo exportado saía com todas elas.",
       "depois": "A engrenagem abre a lista de colunas e o cliente marca o que quer ver. <b>O arquivo exportado sai com exatamente essas colunas</b>, no mesmo recorte da tela."
