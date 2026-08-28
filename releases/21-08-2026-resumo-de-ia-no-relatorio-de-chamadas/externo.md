@@ -5,7 +5,7 @@ O resumo que a IA gera para cada ligação agora fica na tela de **Relatórios**
 | Antes | Depois |
 |-------|--------|
 | O resumo chegava ao seu CRM, um por negócio | Fica também no relatório de Chamadas, linha a linha |
-| Sem CRM conectado, não havia onde lê-lo | Você lê no portal, com ou sem CRM |
+| Comparar vários atendimentos era abrir negócio por negócio | Você filtra o recorte e lê um resumo atrás do outro na mesma tela |
 
 ## Como usar
 1. Abra **Relatórios** no menu lateral.
@@ -15,6 +15,7 @@ O resumo que a IA gera para cada ligação agora fica na tela de **Relatórios**
 
 ## Bom saber
 - As colunas aparecem para contas com o recurso de IA ativo.
+- O resumo existe para as ligações registradas pelo **CRM integrado ou por webhook**. Sem essa integração, a coluna não tem o que mostrar.
 - **Nem toda ligação tem resumo.** Chamada não atendida, muito curta ou anterior à contratação da IA abre avisando que não há — é a resposta esperada, não uma falha.
 - Abrir um dos dois já carrega o outro: alternar entre resumo e análise é imediato.
 - No arquivo exportado, essas colunas não entram — o texto é feito para ser lido na tela, chamada por chamada.

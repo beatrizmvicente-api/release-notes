@@ -1,0 +1,10 @@
+{
+  "feature": "\"Espera antes de desligar\" mostra \"-\" ao invés de 0s",
+  "data": "28-08-2026",
+  "versao": "TEL-2228",
+  "tags": [
+    "Dashboards",
+    "Relatórios",
+    "Portal"
+  ]
+}
