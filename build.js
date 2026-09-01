@@ -9,7 +9,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readReleases, readOne } = require('./lib');
+const { readReleases, readOne, mediaFiles, releaseDir } = require('./lib');
 
 const ROOT = __dirname;
 const APP_DIR = path.join(ROOT, 'app');
@@ -37,7 +37,17 @@ rmrf(OUT);
 fs.mkdirSync(OUT, { recursive: true });
 
 // 2. index.html na raiz + assets em public/app/ (mesma estrutura que o server local)
-fs.copyFileSync(path.join(APP_DIR, 'index.html'), path.join(OUT, 'index.html'));
+//    O editor é ferramenta local: o markup entre <!-- editor:start --> e
+//    <!-- editor:end --> sai do HTML, e editor.js/editor.css não são copiados.
+//    O site publicado é somente leitura, sem nenhum código de edição.
+const html = fs.readFileSync(path.join(APP_DIR, 'index.html'), 'utf8');
+const publicHtml = html.replace(/[ \t]*<!--\s*editor:start\s*-->[\s\S]*?<!--\s*editor:end\s*-->\n?/g, '');
+if (/editor:(start|end)/.test(publicHtml) || /editor\.(js|css)/.test(publicHtml)) {
+  console.error('Build abortado: sobrou referência ao editor em index.html');
+  process.exit(1);
+}
+fs.writeFileSync(path.join(OUT, 'index.html'), publicHtml, 'utf8');
+
 for (const name of ['style.css', 'app.js', 'vendor']) {
   const s = path.join(APP_DIR, name);
   const d = path.join(OUT, 'app', name);
@@ -53,4 +63,18 @@ for (const r of releases) {
   if (one) writeJSON(path.join(OUT, 'data', `${r.slug}.json`), one);
 }
 
-console.log(`Build ok: ${releases.length} release(s) geradas em public/`);
+// 4. Imagens do antes/depois em public/media/<slug>/ — mesmo caminho que o server local.
+let imagens = 0;
+for (const r of releases) {
+  const arquivos = mediaFiles(r.slug);
+  if (!arquivos.length) continue;
+  const origem = releaseDir(r.slug);
+  const destino = path.join(OUT, 'media', r.slug);
+  fs.mkdirSync(destino, { recursive: true });
+  for (const nome of arquivos) {
+    fs.copyFileSync(path.join(origem, nome), path.join(destino, nome));
+    imagens += 1;
+  }
+}
+
+console.log(`Build ok: ${releases.length} release(s) e ${imagens} imagem(ns) geradas em public/`);

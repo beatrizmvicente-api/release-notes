@@ -3,8 +3,15 @@
 /* Estado */
 let releases = [];
 let current = null;
+let currentMeta = null;
 let audience = 'interno';
 let loaded = { interno: '', externo: '' };
+
+/* Edição: só existe rodando local (npm start). No site publicado fica desligada. */
+let canEdit = false;
+let editing = false;
+let dirty = false;
+let pendingEdit = false;
 
 const $ = (s) => document.querySelector(s);
 
@@ -51,6 +58,9 @@ async function boot() {
     if (location.hash) location.hash = '';
     else showHome();
   });
+
+  // O editor (app/editor.js) só existe rodando local — o build da Vercel não o inclui.
+  if (typeof initEditor === 'function') initEditor();
 
   window.addEventListener('keydown', onKey);
   window.addEventListener('hashchange', routeFromHash);
@@ -115,29 +125,319 @@ async function open(slug) {
   if (!res.ok) return;
   const data = await res.json();
   loaded = { interno: data.interno, externo: data.externo };
+  currentMeta = data.meta || {};
 
   $('#home').hidden = true;
   $('#content').hidden = false;
 
-  const m = data.meta;
-  const tags = (m.tags || []).map((t) =>
-    `<span class="chip"><span class="tag-dot" style="background:${tagColor(t)}"></span>${escape(t)}</span>`).join('');
-  $('#meta-bar').innerHTML =
-    `<div class="feature">${escape(m.feature || slug)}</div>` +
-    `<div class="info">` +
-    (m.data ? `<span class="chip"><svg class="chip-ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>${escape(m.data)}</span>` : '') +
-    (m.versao ? `<span class="chip ver">${escape(m.versao)}</span>` : '') +
-    tags + `</div>`;
-
+  renderMetaBar(currentMeta, slug);
+  renderVisual(data.visual, slug);
   renderDoc();
   renderList(currentFilter());
   $('#main').scrollTop = 0;
   $('#sidebar').classList.remove('open');
+
+  if (pendingEdit) { pendingEdit = false; startEdit(); }
+}
+
+function renderMetaBar(m, slug) {
+  const tags = (m.tags || []).map((t) =>
+    `<span class="chip"><span class="tag-dot" style="background:${tagColor(t)}"></span>${escape(t)}</span>`).join('');
+  $('#meta-bar').innerHTML =
+    `<div class="feature">${escape(m.feature || slug || '')}</div>` +
+    `<div class="info">` +
+    (m.data ? `<span class="chip"><svg class="chip-ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>${escape(m.data)}</span>` : '') +
+    (m.versao ? `<span class="chip ver">${escape(m.versao)}</span>` : '') +
+    tags + `</div>`;
+}
+
+/* ============================================================
+   Antes e depois — o player visual
+   ------------------------------------------------------------
+   Duas imagens da mesma tela, antes e depois, lado a lado. A cada
+   passo a "câmera" vai para o mesmo ponto nos dois lados, acende a
+   região e troca a legenda. É opcional: release sem visual.json
+   não mostra nada aqui.
+   ============================================================ */
+
+const BA_DURACAO = 7000;   // ms por passo no modo automático
+let baPlayer = null;
+
+/* As legendas vêm do visual.json, escrito por quem publica a release, e aceitam
+   ênfase simples. Passa por uma peneira de tags para não virar porta de HTML solto. */
+function textoRico(s) {
+  return escape(String(s || '')).replace(/&lt;(\/?)(b|strong|i|em|code|br)&gt;/g, '<$1$2>');
+}
+
+function renderVisual(v, slug) {
+  const host = $('#visual');
+  if (baPlayer) { baPlayer.destruir(); baPlayer = null; }
+  host.innerHTML = '';
+  host.hidden = !v;
+  if (v) baPlayer = montarPlayer(host, v, slug);
+}
+
+/* Qual região da imagem esse passo olha. null = a tela inteira. */
+function focoDe(passo, lado) {
+  const f = passo.foco;
+  if (!f || f === 'tudo') return null;
+  if (Array.isArray(f)) return f.length === 4 ? f : null;
+  const r = f[lado];
+  return Array.isArray(r) && r.length === 4 ? r : null;
+}
+
+const ICONE = {
+  prev: '<svg viewBox="0 0 24 24"><path d="M18 6 8 12l10 6z"/><rect x="5" y="6" width="2" height="12" rx="1"/></svg>',
+  next: '<svg viewBox="0 0 24 24"><path d="M6 6l10 6-10 6z"/><rect x="17" y="6" width="2" height="12" rx="1"/></svg>',
+  play: '<path d="M7 5l12 7-12 7z"/>',
+  pause: '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
+};
+
+function montarPlayer(host, v, slug) {
+  const media = (nome) => `media/${encodeURIComponent(slug)}/${encodeURIComponent(nome)}`;
+  const painel = (lado, rotulo, img) => `
+    <figure class="ba-pane ba-pane--${lado}">
+      <figcaption class="ba-bar">
+        <span class="ba-tag">${lado === 'antes' ? 'Antes' : 'Depois'}</span>
+        <span class="ba-rot">${escape(img.rotulo || rotulo)}</span>
+      </figcaption>
+      <div class="ba-screen">
+        <div class="ba-scaler"><img src="${media(img.src)}" alt="${escape(rotulo)}" /><i class="ba-spot"></i></div>
+        ${lado === 'antes' ? '<div class="ba-void"><span class="ba-eyebrow">Sem equivalente</span><p></p></div>' : ''}
+      </div>
+    </figure>`;
+
+  const sec = document.createElement('section');
+  sec.className = 'ba';
+  sec.innerHTML = `
+    <div class="ba-head">
+      <span class="ba-eyebrow">Antes e depois</span>
+      ${v.titulo ? `<h2 class="ba-title">${escape(v.titulo)}</h2>` : ''}
+      ${v.resumo ? `<p class="ba-lead">${escape(v.resumo)}</p>` : ''}
+    </div>
+    <ul class="ba-steps"></ul>
+    <div class="ba-caption">
+      <div class="ba-cap-head">
+        <span class="ba-eyebrow ba-passo"></span>
+        <h3 class="ba-cap-title"></h3>
+      </div>
+      <div class="ba-cap-cols">
+        <div class="ba-cap ba-cap--antes"><h4>Antes</h4><p></p></div>
+        <div class="ba-cap ba-cap--depois"><h4>Depois</h4><p></p></div>
+      </div>
+    </div>
+    <div class="ba-stage">
+      ${painel('antes', 'Como era', v.antes)}
+      ${painel('depois', 'Como ficou', v.depois)}
+    </div>
+    <div class="ba-controls">
+      <button class="ba-btn" data-acao="prev" aria-label="Passo anterior">${ICONE.prev}</button>
+      <button class="ba-btn ba-btn--play" data-acao="play" aria-label="Reproduzir"><svg viewBox="0 0 24 24">${ICONE.play}</svg></button>
+      <button class="ba-btn" data-acao="next" aria-label="Próximo passo">${ICONE.next}</button>
+      <div class="ba-track"><i></i></div>
+      <span class="ba-counter"></span>
+    </div>`;
+  host.appendChild(sec);
+
+  const q = (s) => sec.querySelector(s);
+  const painéis = { antes: q('.ba-pane--antes'), depois: q('.ba-pane--depois') };
+  const fill = q('.ba-track > i');
+  const btnPlay = q('.ba-btn--play');
+  const reduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let idx = 0, tocando = false, raf = null, inicio = 0, manual = false;
+
+  /* --- chips dos passos --- */
+  const listaSteps = q('.ba-steps');
+  v.passos.forEach((p, i) => {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.innerHTML = `<span class="ba-n">${i + 1}</span>${escape(p.chip)}`;
+    b.addEventListener('click', () => { manual = true; pausar(); ir(i); });
+    li.appendChild(b);
+    listaSteps.appendChild(li);
+  });
+  const chips = listaSteps.querySelectorAll('button');
+
+  /* --- a câmera ---
+     Escala 1 = a imagem ocupando a largura do painel. A partir daí a câmera
+     aproxima até a região pedida caber com folga, sem passar do limite que
+     embaça o print. Os dois lados andam sempre na MESMA escala: é o que deixa
+     um painel comparável com o outro. */
+  const MARGEM = 22, ZOOM_MAX = 3;
+
+  function medidas(pane) {
+    const tela = pane.querySelector('.ba-screen');
+    const img = pane.querySelector('img');
+    const L = tela.clientWidth, A = tela.clientHeight;
+    if (!L || !img.naturalWidth) return null;
+    return { L, A, alturaPapel: L * (img.naturalHeight / img.naturalWidth) };
+  }
+
+  function escalaPara(pane, rect) {
+    const m = medidas(pane);
+    if (!m) return null;
+    const cabeInteira = Math.min(1, m.A / m.alturaPapel);
+    if (!rect) return cabeInteira;
+    const s = Math.min((m.L - 2 * MARGEM) / (rect[2] * m.L), (m.A - 2 * MARGEM) / (rect[3] * m.alturaPapel));
+    return Math.max(cabeInteira, Math.min(s, ZOOM_MAX));
+  }
+
+  function posicionar(pane, rect, s) {
+    const m = medidas(pane);
+    if (!m || s == null) return;
+    const { L, A, alturaPapel } = m;
+    const scaler = pane.querySelector('.ba-scaler');
+    const spot = pane.querySelector('.ba-spot');
+
+    let x, y;
+    if (!rect) {
+      x = (L - L * s) / 2;
+      y = 0;
+    } else {
+      const rx = rect[0] * L, ry = rect[1] * alturaPapel;
+      const rl = rect[2] * L, ra = rect[3] * alturaPapel;
+      // Centraliza a região; nas bordas, encosta na imagem em vez de mostrar vazio.
+      y = ry - (A - s * ra) / (2 * s);
+      y = alturaPapel * s <= A ? 0 : Math.max(0, Math.min(y, alturaPapel - A / s));
+      x = (L - s * rl) / 2 - s * rx;
+      x = L * s <= L ? (L - L * s) / 2 : Math.max(L - L * s, Math.min(0, x));
+    }
+    scaler.style.transform = `translateX(${x}px) scale(${s}) translateY(${-y}px)`;
+
+    if (rect) {
+      spot.style.left = rect[0] * 100 + '%';
+      spot.style.top = rect[1] * 100 + '%';
+      spot.style.width = rect[2] * 100 + '%';
+      spot.style.height = rect[3] * 100 + '%';
+    }
+    spot.classList.toggle('is-on', !!rect);
+  }
+
+  function ir(i) {
+    idx = (i + v.passos.length) % v.passos.length;
+    const p = v.passos[idx];
+
+    // Quem tem região a mostrar anda na MESMA escala dos dois lados. Um lado sem
+    // região (visão geral, ou o painel vazio) fica no tamanho que couber, e não
+    // puxa o outro junto — na visão geral, a diferença de altura entre as duas
+    // páginas já é parte do que se quer ver.
+    const rA = focoDe(p, 'antes'), rD = focoDe(p, 'depois');
+    const usaA = !!rA && !p.semAntes;
+    const juntas = [usaA ? escalaPara(painéis.antes, rA) : null, rD ? escalaPara(painéis.depois, rD) : null]
+      .filter((e) => e != null);
+    const s = juntas.length ? Math.min(...juntas) : null;
+    posicionar(painéis.antes, rA, usaA && s != null ? s : escalaPara(painéis.antes, rA));
+    posicionar(painéis.depois, rD, rD && s != null ? s : escalaPara(painéis.depois, rD));
+
+    // Passo que só existe no depois: o lado esquerdo assume que não há equivalente.
+    painéis.antes.classList.toggle('is-void', !!p.semAntes);
+    if (p.semAntes) painéis.antes.querySelector('.ba-void p').innerHTML = textoRico(p.semAntes);
+
+    chips.forEach((c, k) => c.setAttribute('aria-current', k === idx ? 'true' : 'false'));
+    q('.ba-passo').textContent = `Passo ${idx + 1} de ${v.passos.length}`;
+    q('.ba-cap-title').textContent = p.titulo;
+    q('.ba-cap--antes p').innerHTML = textoRico(p.antes);
+    q('.ba-cap--depois p').innerHTML = textoRico(p.depois);
+    q('.ba-counter').textContent = `${idx + 1} / ${v.passos.length}`;
+    inicio = 0;
+    fill.style.width = '0%';
+  }
+
+  /* --- modo automático --- */
+  function passo(ts) {
+    if (!tocando) return;
+    if (!inicio) inicio = ts;
+    const p = (ts - inicio) / BA_DURACAO;
+    fill.style.width = Math.min(100, p * 100) + '%';
+    if (p >= 1) { ir(idx + 1); inicio = ts; }
+    raf = requestAnimationFrame(passo);
+  }
+  function tocar() {
+    if (tocando) return;
+    tocando = true;
+    btnPlay.querySelector('svg').innerHTML = ICONE.pause;
+    btnPlay.setAttribute('aria-label', 'Pausar');
+    inicio = 0;
+    raf = requestAnimationFrame(passo);
+  }
+  function pausar() {
+    tocando = false;
+    if (raf) cancelAnimationFrame(raf);
+    btnPlay.querySelector('svg').innerHTML = ICONE.play;
+    btnPlay.setAttribute('aria-label', 'Reproduzir');
+    fill.style.width = '0%';
+  }
+
+  q('.ba-controls').addEventListener('click', (e) => {
+    const b = e.target.closest('.ba-btn');
+    if (!b) return;
+    manual = true;
+    const acao = b.dataset.acao;
+    if (acao === 'play') { tocando ? pausar() : tocar(); return; }
+    pausar();
+    ir(acao === 'next' ? idx + 1 : idx - 1);
+  });
+
+  /* --- só roda enquanto está na tela; para de rodar assim que sai --- */
+  const observador = new IntersectionObserver((entradas) => {
+    const visivel = entradas[0].isIntersecting;
+    if (visivel && !manual && !reduzido) tocar();
+    else if (!visivel) pausar();
+  }, { threshold: 0.3 });
+  observador.observe(sec);
+
+  /* --- a legenda vem antes das imagens: reserva a altura do passo mais longo,
+         senão trocar de passo empurra as telas pra cima e pra baixo --- */
+  function reservarAltura() {
+    const cap = q('.ba-caption');
+    const titulo = q('.ba-cap-title');
+    const [pa, pd] = [q('.ba-cap--antes p'), q('.ba-cap--depois p')];
+    cap.style.minHeight = '';
+    let maior = 0;
+    for (const p of v.passos) {
+      titulo.textContent = p.titulo;
+      pa.innerHTML = textoRico(p.antes);
+      pd.innerHTML = textoRico(p.depois);
+      maior = Math.max(maior, cap.offsetHeight);
+    }
+    cap.style.minHeight = `${maior}px`;
+  }
+
+  /* --- a régua muda de tamanho: recalcula a câmera e a altura da legenda --- */
+  let t = null;
+  const aoRedimensionar = () => {
+    clearTimeout(t);
+    t = setTimeout(() => { reservarAltura(); ir(idx); }, 120);
+  };
+  window.addEventListener('resize', aoRedimensionar);
+
+  // As imagens podem chegar depois; sem o tamanho real não dá para posicionar.
+  sec.querySelectorAll('img').forEach((img) => {
+    if (!img.complete) img.addEventListener('load', () => ir(idx), { once: true });
+  });
+
+  if (reduzido) sec.classList.add('ba-sem-animacao');
+  reservarAltura();
+  ir(0);
+
+  return {
+    anterior() { manual = true; pausar(); ir(idx - 1); },
+    proximo() { manual = true; pausar(); ir(idx + 1); },
+    destruir() {
+      pausar();
+      observador.disconnect();
+      window.removeEventListener('resize', aoRedimensionar);
+      clearTimeout(t);
+    },
+  };
 }
 
 /* ---------- Página inicial (home) ---------- */
 function showHome() {
   current = null;
+  if (baPlayer) { baPlayer.destruir(); baPlayer = null; }
   $('#content').hidden = true;
   $('#home').hidden = false;
   renderHome();
@@ -195,6 +495,9 @@ function renderHome() {
     const col = document.createElement('div');
     col.className = 'day-list';
     for (const r of g.items) {
+      const wrap = document.createElement('div');
+      wrap.className = 'home-card-wrap';
+
       const card = document.createElement('button');
       card.className = 'home-card';
       const dots = (r.tags || []).map((t) => `<span class="tag-dot" style="background:${tagColor(t)}" title="${escape(t)}"></span>`).join('');
@@ -202,9 +505,15 @@ function renderHome() {
         (r.versao ? `<div class="home-card-top"><span class="ver">${escape(r.versao)}</span></div>` : '') +
         `<div class="home-card-title">${escape(r.feature)}</div>` +
         `<div class="home-card-sub"><span class="date">${escape(r.data || 's/ data')}</span>` +
+          (r.temVisual ? '<span class="visual-badge" title="Tem antes e depois em imagem">▣ antes e depois</span>' : '') +
           (dots ? `<span class="tag-dots">${dots}</span>` : '') + `</div>`;
       card.addEventListener('click', () => { location.hash = r.slug; });
-      col.appendChild(card);
+      wrap.appendChild(card);
+
+      // Gancho do editor local; no site publicado a função não existe.
+      if (typeof decorateCardForEdit === 'function') decorateCardForEdit(wrap, r);
+
+      col.appendChild(wrap);
     }
     section.appendChild(col);
     grid.appendChild(section);
@@ -212,9 +521,11 @@ function renderHome() {
 }
 
 function setAudience(a) {
+  if (a === audience) return;
+  if (editing && dirty && !confirm('Descartar as alterações não salvas?')) return;
   audience = a;
   document.querySelectorAll('.seg').forEach((b) => b.classList.toggle('active', b.dataset.tab === a));
-  renderDoc();
+  if (editing) fillEditor(); else renderDoc();
   if (current) history.replaceState(null, '', `#${current}/${a}`);
 }
 
@@ -361,6 +672,7 @@ function selectRole(sec, value, silent) {
   if (!silent) localStorage.setItem('rn-role', value);
 }
 
+
 /* ---------- Copiar (rich + texto) ---------- */
 async function copyCurrent() {
   const md = loaded[audience] || '';
@@ -396,6 +708,15 @@ function toast(msg) {
 
 /* ---------- Roteamento por hash (#slug ou #slug/externo) ---------- */
 function routeFromHash() {
+  if (editing) {
+    const want = `#${current}/${audience}`;
+    if (location.hash === want) return;            // veio da nossa própria restauração
+    if (dirty && !confirm('Você tem alterações não salvas. Sair mesmo assim?')) {
+      location.hash = want;
+      return;
+    }
+    stopEdit();
+  }
   const raw = decodeURIComponent(location.hash.replace(/^#/, ''));
   if (!raw) { showHome(); return; }
   const [slug, aud] = raw.split('/');
@@ -407,10 +728,32 @@ function routeFromHash() {
 
 /* ---------- Teclado ---------- */
 function onKey(e) {
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === 's') {
+    if (!editing) return;
+    e.preventDefault();
+    saveEdit();
+    return;
+  }
+  if (mod && e.key.toLowerCase() === 'e') {
+    if (!canEdit || !current) return;
+    e.preventDefault();
+    editing ? cancelEdit() : startEdit();
+    return;
+  }
+  if (e.key === 'Escape' && editing) { e.preventDefault(); cancelEdit(); return; }
+
   const typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
   if (e.key === '/' && !typing) { e.preventDefault(); $('#search').focus(); return; }
   if (e.key === 'Escape' && typing) { document.activeElement.blur(); return; }
   if (typing) return;
+
+  // Setas laterais andam pelos passos do antes/depois, quando a release tem um.
+  if (baPlayer && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+    e.preventDefault();
+    e.key === 'ArrowRight' ? baPlayer.proximo() : baPlayer.anterior();
+    return;
+  }
 
   const items = currentFilter();
   if (!items.length) return;

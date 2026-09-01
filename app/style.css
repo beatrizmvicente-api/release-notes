@@ -377,6 +377,11 @@ table.before-after tbody td:last-child { background: var(--after-bg); }
 }
 .day-group.is-latest .home-card-title { font-size: 16.5px; }
 
+/* Cada card vive dentro de um wrapper posicionado (o editor local ancora um
+   botão nele; sem o editor, o wrapper só repassa a largura da coluna). */
+.home-card-wrap { position: relative; display: flex; }
+.home-card-wrap > .home-card { flex: 1; }
+
 .home-card {
   text-align: left; background: var(--panel); border: 1px solid var(--border);
   border-radius: 12px; padding: 15px 16px; cursor: pointer;
@@ -393,8 +398,145 @@ table.before-after tbody td:last-child { background: var(--after-bg); }
 .home-card-title { font-size: 15px; font-weight: 700; color: var(--text-strong); line-height: 1.3; }
 .home-card-sub { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: auto; }
 
+/* ============================================================
+   Antes e depois — player visual
+   Duas imagens da mesma tela lado a lado; a cada passo a câmera vai
+   ao mesmo ponto nos dois lados e acende a região comentada.
+   ============================================================ */
+/* O texto da release mora numa coluna de 780px; o antes/depois escapa dela.
+   São dois prints de tela cheia lado a lado — em 780px nada é legível. */
+.ba {
+  margin: 4px 0 30px;
+  width: min(1120px, max(100%, calc(100vw - 400px)));
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.ba-head { margin-bottom: 14px; }
+.ba-eyebrow {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--faint);
+}
+.ba-title { font-size: 19px; font-weight: 700; color: var(--heading); margin: 4px 0 0; line-height: 1.3; }
+.ba-lead { font-size: 14px; color: var(--muted); margin: 6px 0 0; max-width: 70ch; }
+
+/* Chips dos passos */
+.ba-steps { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0 0 12px; padding: 0; }
+.ba-steps button {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--panel); border: 1px solid var(--border); color: var(--muted);
+  border-radius: 999px; padding: 5px 13px 5px 6px; cursor: pointer;
+  font: inherit; font-size: 12.5px; font-weight: 600;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.ba-steps button:hover { border-color: var(--border-strong); color: var(--text); }
+.ba-n {
+  width: 20px; height: 20px; border-radius: 50%; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--code-bg); color: var(--faint);
+  font-size: 11px; font-weight: 700;
+}
+.ba-steps button[aria-current="true"] { background: var(--accent); color: #fff; border-color: transparent; }
+.ba-steps button[aria-current="true"] .ba-n { background: rgba(255, 255, 255, .25); color: #fff; }
+[data-theme="dark"] .ba-steps button[aria-current="true"] { color: #0b1220; }
+[data-theme="dark"] .ba-steps button[aria-current="true"] .ba-n { background: rgba(0, 0, 0, .2); color: #0b1220; }
+.ba-steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Os dois painéis */
+.ba-stage { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ba-pane {
+  margin: 0; min-width: 0; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+}
+.ba-bar {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px; border-bottom: 1px solid var(--border);
+}
+.ba-tag {
+  font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+  border-radius: 5px; padding: 2px 8px;
+}
+.ba-pane--antes .ba-tag { background: var(--before-bg); color: var(--before-text); }
+.ba-pane--depois .ba-tag { background: var(--after-bg); color: var(--after-text); }
+.ba-rot { font-size: 12px; color: var(--faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* A janela por onde a tela é vista. Fundo branco de propósito: é um print
+   de produto, não muda com o tema do site. */
+.ba-screen { position: relative; height: 460px; overflow: hidden; background: #fff; }
+.ba-scaler {
+  position: absolute; top: 0; left: 0; width: 100%;
+  transform-origin: 0 0; will-change: transform;
+  transition: transform .75s cubic-bezier(.4, .1, .2, 1);
+}
+.ba-scaler img { display: block; width: 100%; }
+.ba-sem-animacao .ba-scaler { transition: none; }
+
+/* A região comentada: contorno + o resto da tela escurecido. */
+.ba-spot {
+  position: absolute; border-radius: 6px; pointer-events: none;
+  opacity: 0; transition: opacity .4s ease .2s;
+}
+.ba-spot.is-on {
+  opacity: 1;
+  outline: 2px solid var(--accent);
+  box-shadow: 0 0 0 9999px rgba(12, 15, 20, .38);
+}
+
+/* Passo que só existe no depois */
+.ba-void {
+  position: absolute; inset: 0; display: none;
+  flex-direction: column; justify-content: center; gap: 8px;
+  padding: 28px; text-align: center; background: var(--panel);
+}
+.ba-pane.is-void .ba-void { display: flex; }
+.ba-void p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+
+/* Controles */
+.ba-controls { display: flex; align-items: center; gap: 8px; margin: 12px 0 0; }
+.ba-btn {
+  width: 32px; height: 32px; flex: none; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--muted); cursor: pointer; transition: border-color .12s, color .12s;
+}
+.ba-btn:hover { border-color: var(--border-strong); color: var(--text); }
+.ba-btn svg { width: 16px; height: 16px; fill: currentColor; }
+.ba-btn--play { background: var(--accent); border-color: transparent; color: #fff; }
+.ba-btn--play:hover { color: #fff; filter: brightness(1.08); }
+[data-theme="dark"] .ba-btn--play { color: #0b1220; }
+[data-theme="dark"] .ba-btn--play:hover { color: #0b1220; }
+.ba-track { flex: 1; height: 3px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.ba-track > i { display: block; height: 100%; width: 0; background: var(--accent); }
+.ba-counter { font-size: 12px; color: var(--faint); font-variant-numeric: tabular-nums; }
+
+/* Legenda do passo — fica entre os chips e as imagens: o leitor sabe o que
+   procurar antes de olhar. */
+.ba-caption { margin: 0 0 12px; }
+.ba-cap-head { margin-bottom: 10px; }
+.ba-cap-title { font-size: 16px; font-weight: 700; color: var(--heading); margin: 3px 0 0; line-height: 1.35; }
+.ba-cap-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ba-cap { border-radius: 10px; padding: 12px 14px; border: 1px solid var(--border); }
+.ba-cap h4 {
+  margin: 0 0 5px; font-size: 10.5px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.ba-cap p { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--text); }
+.ba-cap--antes { background: var(--before-bg); border-color: transparent; }
+.ba-cap--antes h4 { color: var(--before-text); }
+.ba-cap--depois { background: var(--after-bg); border-color: transparent; }
+.ba-cap--depois h4 { color: var(--after-text); }
+
+/* Marca na home de que a release tem antes/depois em imagem */
+.visual-badge {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .02em;
+  color: var(--accent-text); background: var(--accent-weak);
+  border-radius: 5px; padding: 1px 7px;
+}
+
 /* ---------- Responsivo ---------- */
 @media (max-width: 820px) {
+  .ba { width: auto; margin-left: 0; transform: none; }
+  .ba-stage, .ba-cap-cols { grid-template-columns: 1fr; }
+  .ba-screen { height: 340px; }
   #menuToggle { display: inline-flex; }
   #sidebar {
     position: fixed; top: var(--topbar-h); left: 0; bottom: 0; z-index: 20;

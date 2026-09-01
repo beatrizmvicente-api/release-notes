@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Release Notes — API4COM</title>
   <link rel="stylesheet" href="/app/style.css" />
+  <!-- editor:start --><link rel="stylesheet" href="/app/editor.css" /><!-- editor:end -->
 </head>
 <body>
   <header id="topbar">
@@ -16,6 +17,11 @@
       </div>
     </div>
     <div class="topbar-actions">
+      <!-- editor:start -->
+      <span id="localBadge" class="local-badge" hidden title="Servidor local: dá pra editar o texto das releases aqui mesmo">
+        <span class="local-dot"></span>Local · edição ligada
+      </span>
+      <!-- editor:end -->
       <a id="homeBtn" class="icon-btn" title="Início" aria-label="Página inicial" href="#">
         <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
       </a>
@@ -52,12 +58,21 @@
         <article id="content" hidden>
           <div id="meta-bar"></div>
 
+          <!-- Antes e depois em imagem. Vem antes das abas porque a tela é a mesma
+               para os dois públicos — só o texto abaixo muda. -->
+          <div id="visual" hidden></div>
+
           <div id="toolbar">
             <div id="tabs" class="segmented" role="tablist">
               <button class="seg active" data-tab="interno" role="tab">Versão para time interno</button>
               <button class="seg" data-tab="externo" role="tab">Versão para o cliente</button>
             </div>
             <div class="toolbar-right">
+              <!-- editor:start -->
+              <button id="editBtn" class="copy-btn" title="Editar o texto desta release (Ctrl+E)" hidden>
+                <span class="copy-ico"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14.5 6.5l3 3"/></svg></span> <span class="edit-label">Editar</span>
+              </button>
+              <!-- editor:end -->
               <button id="copyBtn" class="copy-btn" title="Copiar para colar em e-mail/Slack">
                 <span class="copy-ico"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></span> <span class="copy-label">Copiar</span>
               </button>
@@ -65,6 +80,32 @@
           </div>
 
           <div id="doc" class="markdown"></div>
+
+          <!-- editor:start -->
+          <div id="editor" class="editor" hidden>
+            <div class="editor-meta">
+              <label>Título<input id="edFeature" type="text" autocomplete="off" /></label>
+              <label>Data<input id="edData" type="text" placeholder="DD-MM-AAAA" autocomplete="off" /></label>
+              <label>Ticket<input id="edVersao" type="text" placeholder="TEL-0000" autocomplete="off" /></label>
+              <label>Tags<input id="edTags" type="text" placeholder="separadas por vírgula" autocomplete="off" /></label>
+            </div>
+            <div class="editor-split">
+              <div class="editor-pane">
+                <div class="editor-pane-label">Markdown <span id="edFile" class="editor-file"></span></div>
+                <textarea id="edText" spellcheck="true"></textarea>
+              </div>
+              <div class="editor-pane">
+                <div class="editor-pane-label">Prévia</div>
+                <div id="edPreview" class="markdown editor-preview"></div>
+              </div>
+            </div>
+            <div class="editor-bar">
+              <span id="edStatus" class="editor-status"></span>
+              <button id="edCancel" class="ghost-btn">Descartar</button>
+              <button id="edSave" class="save-btn">Salvar <kbd>Ctrl+S</kbd></button>
+            </div>
+          </div>
+          <!-- editor:end -->
         </article>
       </div>
     </main>
@@ -74,5 +115,6 @@
 
   <script src="/app/vendor/marked.min.js"></script>
   <script src="/app/app.js"></script>
+  <!-- editor:start --><script src="/app/editor.js"></script><!-- editor:end -->
 </body>
 </html>
