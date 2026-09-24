@@ -547,3 +547,26 @@ table.before-after tbody td:last-child { background: var(--after-bg); }
   #meta-bar .feature { font-size: 24px; }
   .home-grid { max-width: none; }
 }
+
+/* Print de tela no corpo do texto da release. Sem isto, uma captura de 1500px
+   estoura a coluna do documento. */
+#doc img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 16px 0 6px;
+}
+/* Legenda da imagem: paragrafo so com enfase, logo abaixo do print. */
+#doc p > em:only-child {
+  display: block;
+  font-size: 13px;
+  font-style: normal;
+  color: var(--muted);
+}
+
+/* "No ar desde": a entrega subiu antes do release ser escrito. Discreto — a data
+   que manda continua sendo a do release. */
+#meta-bar .chip.no-ar { color: var(--muted); border-style: dashed; }
+.no-ar-sub { color: var(--faint); font-size: 11.5px; }

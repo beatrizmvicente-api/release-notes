@@ -147,6 +147,8 @@ function renderMetaBar(m, slug) {
     `<div class="feature">${escape(m.feature || slug || '')}</div>` +
     `<div class="info">` +
     (m.data ? `<span class="chip"><svg class="chip-ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>${escape(m.data)}</span>` : '') +
+    // Release escrito dias depois do deploy: diz desde quando a entrega esta em producao.
+    (m.noAr && m.noAr !== m.data ? `<span class="chip no-ar" title="Quando a entrega subiu para produção">No ar desde ${escape(m.noAr)}</span>` : '') +
     (m.versao ? `<span class="chip ver">${escape(m.versao)}</span>` : '') +
     tags + `</div>`;
 }
@@ -505,6 +507,7 @@ function renderHome() {
         (r.versao ? `<div class="home-card-top"><span class="ver">${escape(r.versao)}</span></div>` : '') +
         `<div class="home-card-title">${escape(r.feature)}</div>` +
         `<div class="home-card-sub"><span class="date">${escape(r.data || 's/ data')}</span>` +
+          (r.noAr && r.noAr !== r.data ? `<span class="no-ar-sub">no ar desde ${escape(r.noAr)}</span>` : '') +
           (r.temVisual ? '<span class="visual-badge" title="Tem antes e depois em imagem">▣ antes e depois</span>' : '') +
           (dots ? `<span class="tag-dots">${dots}</span>` : '') + `</div>`;
       card.addEventListener('click', () => { location.hash = r.slug; });

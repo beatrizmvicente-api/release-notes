@@ -98,10 +98,19 @@ function readReleases() {
       versao: meta.versao || '',
       tags: Array.isArray(meta.tags) ? meta.tags : [],
       temVisual: fs.existsSync(path.join(dir, 'visual.json')),
+      destaque: meta.destaque === true,
+      noAr: meta.noAr || '',
+      deploySortable: toSortable(meta.noAr || meta.data),
     });
   }
-  // Mais recente primeiro; sem data cai pro fim.
-  out.sort((a, b) => (b.dataSortable || '0').localeCompare(a.dataSortable || '0'));
+  // Ordena pela data em que a entrega SUBIU (noAr), nao pela data do release: e comum
+  // escrever o release dias depois, em lote, e ai todos teriam a mesma data. Sem noAr,
+  // a propria data do release e a referencia. Empate no mesmo deploy: "destaque" abre.
+  out.sort((a, b) => {
+    const porDeploy = (b.deploySortable || '0').localeCompare(a.deploySortable || '0');
+    if (porDeploy !== 0) return porDeploy;
+    return (b.destaque ? 1 : 0) - (a.destaque ? 1 : 0);
+  });
   return out;
 }
 
@@ -142,12 +151,21 @@ function writeDoc(slug, kind, content) {
 function writeMeta(slug, meta) {
   const dir = releaseDir(slug);
   if (!dir) throw new Error('release não encontrada');
+  // O editor local manda so os campos do formulario. Sem isto, salvar pela tela apagaria
+  // o "destaque" em silencio — o campo nao aparece no form, mas manda na ordem da lista.
+  let atual = {};
+  try { atual = JSON.parse(fs.readFileSync(path.join(dir, 'meta.json'), 'utf8')); } catch (e) {}
+  const destaque = meta.destaque === undefined ? atual.destaque === true : meta.destaque === true;
   const clean = {
     feature: String(meta.feature || '').trim(),
     data: String(meta.data || '').trim(),
     versao: String(meta.versao || '').trim(),
     tags: (Array.isArray(meta.tags) ? meta.tags : []).map((t) => String(t).trim()).filter(Boolean),
   };
+  // Data em que a entrega subiu pra producao, quando o release e escrito dias depois.
+  const noAr = meta.noAr === undefined ? String(atual.noAr || '').trim() : String(meta.noAr || '').trim();
+  if (destaque) clean.destaque = true;
+  if (noAr) clean.noAr = noAr;
   fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify(clean, null, 2) + '\n', 'utf8');
   return clean;
 }
